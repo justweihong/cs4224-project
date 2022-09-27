@@ -13,12 +13,15 @@ Done in AY22/23 Semester 1
 │   └── xact_files
 ├── ysql
 │   ├── ..
-│   └── ..
+│   └── 
 ├── ycql
 │   ├── ..
 │   └── ..
 ├── README.md
 │── index.html
 ```
-
+* To populate the YSQL database, run the following command:
+```
+./ysql/setup/init.sh
+```
 
