@@ -20,7 +20,7 @@ Done in AY22/23 Semester 1
 ├── README.md
 │── index.html
 ```
-* To populate the YSQL database, run the following command:
+* To populate the YSQL database, run the following command while in the cs4224-project directory:
 ```
 ./ysql/setup/init.sh
 ```
