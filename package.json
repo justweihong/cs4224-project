@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "async": "^3.2.4",
+    "pg": "^8.8.0",
+    "sequelize-yugabytedb": "^1.0.6"
+  }
+}
