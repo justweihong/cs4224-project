@@ -3,6 +3,7 @@ const async = require('async');
 const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
+const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 
 // Config
 const config = {
@@ -74,10 +75,6 @@ async function parser(callbackHadler, filePath) {
     lines.forEach(line => {
         let args = line.split(',');
 
-        // if N, set itemleft = n, then if itemleft >0 add item, if 0, return and make -1
-
-
-
         
         // Item line, add into items for new order transaction
         if (itemsLeft > 0) {
@@ -90,9 +87,7 @@ async function parser(callbackHadler, filePath) {
             itemsLeft--;
         }
 
-        //The first value in the first line must be either N, P, D, O, S, I, T, or R, denoting, respectively, a 
-        // new order, payment, delivery, order-status, stock-level, popular-item, top-balance, or related-customer transaction
-
+        // Transactions
         switch(args[0]) {
             case TransactionTypes.NEW_ORDER:
                 orderDetails = args.slice(1);
@@ -102,7 +97,7 @@ async function parser(callbackHadler, filePath) {
             // case TransactionTypes.PAYMENT: // TODO
             // case TransactionTypes.DELIVERY: // TODO
             case TransactionTypes.ORDER_STATUS:
-                console.log(args);
+                orderStatusTransaction(client, ...args.slice(1));
                 break;
 
             // case TransactionTypes.STOCK_LEVEL: // TODO
@@ -110,14 +105,9 @@ async function parser(callbackHadler, filePath) {
             // case TransactionTypes.TOP_BALANCE:
             // case TransactionTypes.RELATED_CUSTOMER:
         }
-        
-        
-        
-        // console.log(args);
-
     })
 
-    // console.log(data);
+    // End Parsing
     callbackHadler();
     });
 }
