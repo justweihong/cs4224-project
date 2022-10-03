@@ -116,21 +116,21 @@ async function newOrderTransaction(callbackHadler, W_ID, D_ID, C_ID, NUM_ITEMS, 
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
    
     
-    Console.log('>>>> NEW ORDER TRANSACTION');
+    console.log('>>>> NEW ORDER TRANSACTION');
    
     //OUTPUT STEP 1
     var C_LAST = await client.query('SELECT C_LAST FROM Customer WHERE C_ID = ' + C_ID);
     var C_CREDIT = await client.query('SELECT C_CREDIT FROM Customer WHERE C_ID = ' + C_ID); 
-    Console.log('Customer Identifier(' + W_ID + ',' + D_ID + ',' + C_ID + '), LastName ' + C_LAST + ', Credit ' + C_CREDIT + ', Discount '  + C_DISCOUNT);
+    console.log('Customer Identifier(' + W_ID + ',' + D_ID + ',' + C_ID + '), LastName ' + C_LAST + ', Credit ' + C_CREDIT + ', Discount '  + C_DISCOUNT);
    
     //OUTPUT STEP 2
-    Console.log('Warehouse Tax Rate ' + W_TAX + ', District Tax Rate ' + D_TAX);
+    console.log('Warehouse Tax Rate ' + W_TAX + ', District Tax Rate ' + D_TAX);
    
     //OUTPUT STEP 3
-    Console.log('Order Number ' + N + ', Entry Date ' + date_obj);
+    console.log('Order Number ' + N + ', Entry Date ' + date_obj);
      
     //OUTPUT STEP 4
-    Console.log('Number of Items ' + NUM_ITEMS + ', Total Amount for Order ' + TOTAL_AMOUNT);
+    console.log('Number of Items ' + NUM_ITEMS + ', Total Amount for Order ' + TOTAL_AMOUNT);
    
     //OUTPUT STEP 5
     for (var i = 1; i < NUM_ITEMS; i++) {
@@ -140,17 +140,47 @@ async function newOrderTransaction(callbackHadler, W_ID, D_ID, C_ID, NUM_ITEMS, 
      var OL_AMOUNT = QUANTITY[i] * I_PRICE;
      var S_QUANTITY = await client.query('SELECT S_QUANTITY FROM Stock WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO);
    
-     Console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
+     console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
     }
 }
 
-
 async function wrapper(callbackHadler) {
     readline.question('', function(input) {
-        console.log(input);
+        let args = input.split(',');
+        if (args[0] == 'N') {
+            console.log('Running New Transaction Statement, Arguments:');
+            console.log('W_ID: ' + args[1]);
+            console.log('D_ID: ' + args[2]);
+            console.log('C_ID: ' + args[3]);
+            console.log('Number of Items: ' + args[4]);
+
+            var itemsToProcess = [];
+            for (var i=0; i < args[4]; i++) {
+                readline.question('', function(item) {
+                    itemsToProcess.push(item);
+                });
+            }
+
+            console.log(itemsToProcess);
+        } else if (args[0] == 'P') {
+
+        } else if (args[0] == 'D') {
+
+        } else if (args[0] == 'O') {
+
+        } else if (args[0] == 'S') {
+
+        } else if (args[0] == 'I') {
+
+        } else if (args[0] == 'R') {
+
+        } else {
+
+        }
         readline.close();
     });
 }
+
 
 async.series([
     function (callbackHadler) {
