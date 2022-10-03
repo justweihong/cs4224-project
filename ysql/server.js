@@ -23,8 +23,6 @@ const readline = require('readline').createInterface({
     output: process.stdout
 });
 
-
-
 var client;
 
 async function connect(callbackHadler) {
@@ -145,40 +143,52 @@ async function newOrderTransaction(callbackHadler, W_ID, D_ID, C_ID, NUM_ITEMS, 
 }
 
 async function wrapper(callbackHadler) {
-    readline.question('', function(input) {
-        let args = input.split(',');
-        if (args[0] == 'N') {
-            console.log('Running New Transaction Statement, Arguments:');
-            console.log('W_ID: ' + args[1]);
-            console.log('D_ID: ' + args[2]);
-            console.log('C_ID: ' + args[3]);
-            console.log('Number of Items: ' + args[4]);
+    fs.readFile('8.txt', function(err, data) {
+        if(err) throw err;
 
-            var itemsToProcess = [];
-            for (var i=0; i < args[4]; i++) {
-                readline.question('', function(item) {
-                    itemsToProcess.push(item);
-                });
+        var transactionArray = data.toString().split('\n');
+
+        for (var i = 0; i < transactionArray.length; i++) {
+            let args = transactionArray[i].split(',');
+
+            if (args[0] == 'N') {
+                console.log('Running New Transaction Statement, Arguments:' + ' W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Number of Items: ' + args[4]);
+            
+                var itemNumberList = [];
+                var supplierWarehouseList = [];
+                var quantityList = [];
+            
+                for (var j=0; j < parseInt(args[4]) + 1; j++) {
+                    console.log(transactionArray[i+j]);
+                    var newItem = transactionArray[i + j].split(',');
+                    itemNumberList.push(newItem[0]);
+                    supplierWarehouseList.push(newItem[1]);
+                    quantityList.push(newItem[2]); 
+                }
+                i = i + parseInt(args[4]);
+                //newOrderTransaction(callbackHadler, args[1], args[2], args[3], args[4], itemNumberList, supplierWarehouseList, quantityList);
+            } else if (args[0] == 'P') {
+                console.log('Running New Payment Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
+            
+            } else if (args[0] == 'D') {
+                console.log('Running New Delivery Transaction Statement, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
+            } else if (args[0] == 'O') {
+                console.log('Running New Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+            } else if (args[0] == 'S') {
+                console.log('Running New Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + 'T: ' + args[3] + 'L: ' + args[4]);
+            } else if (args[0] == 'I') {
+                console.log('Running New Popular Item Transaction Statement, Arguments:' + ' W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' L: ' + args[3]);
+            } else if (args[0] == 'R') {
+                console.log('Running New Related Customer Transaction Statement, Arguments:' + 'C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+            } else {
+            
             }
-
-            console.log(itemsToProcess);
-        } else if (args[0] == 'P') {
-
-        } else if (args[0] == 'D') {
-
-        } else if (args[0] == 'O') {
-
-        } else if (args[0] == 'S') {
-
-        } else if (args[0] == 'I') {
-
-        } else if (args[0] == 'R') {
-
-        } else {
-
         }
-        readline.close();
+
+        console.log('exited the loop');
     });
+
+    console.log('exited file reader');
 }
 
 
