@@ -1,4 +1,4 @@
-module.exports = async function deliveryTransaction(callbackHandler, w_id, carrier_id) {
+async function deliveryTransaction(callbackHandler, w_id, carrier_id) {
   try {
       await client.query('BEGIN TRANSACTION');
       for (i = 0; i < 10; i++) {
@@ -24,3 +24,5 @@ module.exports = async function deliveryTransaction(callbackHandler, w_id, carri
       callbackHandler(err);
   }
 }
+
+module.exports = { deliveryTransaction };
