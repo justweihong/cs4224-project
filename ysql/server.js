@@ -142,15 +142,9 @@ async.series([
 ],
     function (err) {
         if (err) {
-            // Applies to logic of the transferMoneyBetweenAccounts method
-            if (err.code == 40001) {
-                console.error(
-                    `The operation is aborted due to a concurrent transaction that is modifying the same set of rows.
-                    Consider adding retry logic or using the pessimistic locking.`);
-            }
-
             console.error(err);
         }
+        //console.error("Shutting down connection");
         //client.end();
     }
 );

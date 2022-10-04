@@ -4,6 +4,7 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
         .catch(err => {
             console.error(err.stack);
         })
+
     // PROCESS 1
     await client
         .query('UPDATE warehouses SET w_ytd = w_ytd + ' + payment + ' WHERE w_id = ' + c_w_id)
@@ -53,25 +54,25 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
       
     // OUTPUT 2
     await client
-    .query('SELECT * FROM warehouses WHERE w_id = ' + c_w_id)
-    .then(res => {
-        row = res.rows[0];
-        console.log('Warehouse Address: (%s, %s, %s, %s, %s)',
-        row.w_street_1, row.w_street_2, row.w_city, row.w_state, row.w_zip);
-    })
-    .catch(err => {
-        console.error(err.stack);
-    })
+        .query('SELECT * FROM warehouses WHERE w_id = ' + c_w_id)
+        .then(res => {
+            row = res.rows[0];
+            console.log('Warehouse Address: (%s, %s, %s, %s, %s)',
+            row.w_street_1, row.w_street_2, row.w_city, row.w_state, row.w_zip);
+        })
+        .catch(err => {
+            console.error(err.stack);
+        })
     
       
     // OUTPUT 3
     await client
-    .query('SELECT * FROM districts WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
-    .then(res => {
-        row = res.rows[0];
-        console.log('District Address: (%s, %s, %s, %s, %s)',
-        row.d_street_1, row.d_street_2, row.d_city, row.d_state, row.d_zip);
-    })
+        .query('SELECT * FROM districts WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
+        .then(res => {
+            row = res.rows[0];
+            console.log('District Address: (%s, %s, %s, %s, %s)',
+            row.d_street_1, row.d_street_2, row.d_city, row.d_state, row.d_zip);
+        })
       
     // OUTPUT 4
     console.log('Payment: %f', payment);
