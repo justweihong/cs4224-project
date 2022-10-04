@@ -1,4 +1,4 @@
-async function newOrderTransaction(callbackHadler, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
+async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
 
     //STEP 1
     let N = await client.query('SELECT D_NEXT_O_ID FROM District WHERE W_ID = ' + W_ID + ' AND D_ID = ' + D_ID);
@@ -98,3 +98,5 @@ async function newOrderTransaction(callbackHadler, W_ID, D_ID, C_ID, NUM_ITEMS, 
      console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
     }
 }
+
+module.exports = { newOrderTransaction };

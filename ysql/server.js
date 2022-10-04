@@ -3,12 +3,13 @@ const async = require('async');
 const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
+const { newOrderTransaction } = require('./transactions/newOrderTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 
 // Config
 const config = {
     host: '127.0.0.1',
-    port: '9999',
+    port: '5433',
     database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
@@ -67,8 +68,10 @@ async function parser(callbackHadler, filePath) {
 
     // Variables for NewOrderTransaction
     let orderDetails;
-    let itemDetails = [];
     let itemsLeft = -1;
+    let itemNumberList = [];
+    let supplierWarehouseList = [];
+    let quantityList = [];
     
     lines.forEach(line => {
         let args = line.split(',');
@@ -76,12 +79,20 @@ async function parser(callbackHadler, filePath) {
         
         // Item line, add into items for new order transaction
         if (itemsLeft > 0) {
-            itemDetails.push(args);
+            itemNumberList.push(args[0]);
+            supplierWarehouseList.push(args[1]);
+            quantityList.push(args[2]); 
             itemsLeft--;
+        }
         
         // End of item lines, execute new order transaction
-        } else if (itemsLeft == 0) {
-            // TODO: execute new order transaction with orderDetails and itemDetails
+        if (itemsLeft == 0) {
+            console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[0] 
+                + ' D_ID: ' + orderDetails[1] + ' C_ID: ' + orderDetails[2] + ' Number of Items: ' + orderDetails[3]);
+            newOrderTransaction(callbackHadler, client, orderDetails[0], orderDetails[1], orderDetails[2], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
+            itemNumberList = [];
+            supplierWarehouseList = [];
+            quantityList = [];
             itemsLeft--;
         }
 
@@ -95,6 +106,7 @@ async function parser(callbackHadler, filePath) {
             // case TransactionTypes.PAYMENT: // TODO
             // case TransactionTypes.DELIVERY: // TODO
             case TransactionTypes.ORDER_STATUS:
+                console.log('Running Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                 orderStatusTransaction(client, ...args.slice(1));
                 break;
 
@@ -111,11 +123,11 @@ async function parser(callbackHadler, filePath) {
 }
 
 async.series([
-    // function (callbackHadler) {
-    //     connect(callbackHadler);
-    // },
     function (callbackHadler) {
-        parser(callbackHadler, '../project_files/xact_files/0.txt');
+        connect(callbackHadler);
+    },
+    function (callbackHadler) {
+        parser(callbackHadler, '../project_files/xact_files/test.txt');
     },
     
 ],
