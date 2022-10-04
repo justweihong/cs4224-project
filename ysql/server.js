@@ -9,7 +9,7 @@ const { orderStatusTransaction } = require('./transactions/OrderStatusTransactio
 const config = {
     host: '127.0.0.1',
     port: '9999',
-    database: 'yugabyte',
+    database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
     // Uncomment and initialize the SSL settings for YugabyteDB Managed and other secured types of deployment
@@ -36,8 +36,6 @@ const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
 });
-
-
 
 var client;
 
@@ -111,7 +109,6 @@ async function parser(callbackHadler, filePath) {
     callbackHadler();
     });
 }
-
 
 async.series([
     // function (callbackHadler) {
