@@ -20,7 +20,7 @@ const config = {
     //     rejectUnauthorized: true,
     //     ca: fs.readFileSync('path_to_your_root_certificate').toString()
     // },
-    connectionTimeoutMillis: 5000
+    // connectionTimeoutMillis: 5000
 };
 
 // Transaction Types
@@ -42,7 +42,7 @@ const readline = require('readline').createInterface({
 
 var client;
 
-async function connect(callbackHadler) {
+async function connect(callbackHandler) {
     console.log('>>>> Connecting to YugabyteDB!');
 
     try {
@@ -52,18 +52,18 @@ async function connect(callbackHadler) {
 
         console.log('>>>> Connected to YugabyteDB!');
 
-        callbackHadler();
+        callbackHandler();
     } catch (err) {
-        callbackHadler(err);
+        callbackHandler(err);
     }
 }
 
-async function parser(callbackHadler, filePath) {
+async function parser(callbackHandler, filePath) {
     fs.readFile(filePath, 'utf8', function (err,data) {
 
     // Return error for invalid file
     if (err) {
-        callbackHadler(err);
+        callbackHandler(err);
     }
 
     const lines = data.split(/\r?\n/);
@@ -74,10 +74,9 @@ async function parser(callbackHadler, filePath) {
     let itemNumberList = [];
     let supplierWarehouseList = [];
     let quantityList = [];
-    
+
     lines.forEach(line => {
         let args = line.split(',');
-
         
         // Item line, add into items for new order transaction
         if (itemsLeft > 0) {
@@ -91,7 +90,7 @@ async function parser(callbackHadler, filePath) {
         if (itemsLeft == 0) {
             console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[0] 
                 + ' D_ID: ' + orderDetails[1] + ' C_ID: ' + orderDetails[2] + ' Number of Items: ' + orderDetails[3]);
-            newOrderTransaction(callbackHadler, client, orderDetails[0], orderDetails[1], orderDetails[2], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
+            newOrderTransaction(callbackHandler, client, orderDetails[0], orderDetails[1], orderDetails[2], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
             itemNumberList = [];
             supplierWarehouseList = [];
             quantityList = [];
@@ -107,12 +106,12 @@ async function parser(callbackHadler, filePath) {
 
             case TransactionTypes.PAYMENT:
                 console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
-                paymentTransaction(callbackHadler, client, ...args.slice(1));
+                paymentTransaction(client, ...args.slice(1));
                 break;
 
             case TransactionTypes.DELIVERY:
                 console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
-                deliveryTransaction(callbackHadler, client, ...args.slice(1));
+                deliveryTransaction(client, ...args.slice(1));
                 break;
 
             case TransactionTypes.ORDER_STATUS:
@@ -128,16 +127,16 @@ async function parser(callbackHadler, filePath) {
     })
 
     // End Parsing
-    callbackHadler();
+    callbackHandler();
     });
 }
 
 async.series([
-    function (callbackHadler) {
-        connect(callbackHadler);
+    function (callbackHandler) {
+        connect(callbackHandler);
     },
-    function (callbackHadler) {
-        parser(callbackHadler, '../project_files/xact_files/test.txt');
+    function (callbackHandler) {
+        parser(callbackHandler, '../project_files/xact_files/test.txt');
     },
     
 ],
@@ -152,6 +151,6 @@ async.series([
 
             console.error(err);
         }
-        client.end();
+        //client.end();
     }
 );
