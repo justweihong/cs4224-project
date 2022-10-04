@@ -1,4 +1,4 @@
-async function paymentTransaction(callbackHandler, c_w_id, c_d_id, c_id, payment) {
+async function paymentTransaction(callbackHandler, client, c_w_id, c_d_id, c_id, payment) {
   try {
       await client.query('BEGIN TRANSACTION');
       // PROCESS 1

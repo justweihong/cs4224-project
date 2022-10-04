@@ -4,6 +4,8 @@ const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
 const { newOrderTransaction } = require('./transactions/newOrderTransaction');
+const { paymentTransaction } = require('./transactions/paymentTransaction');
+const { deliveryTransaction } = require('./transactions/deliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 
 // Config
@@ -103,8 +105,16 @@ async function parser(callbackHadler, filePath) {
                 itemsLeft = args[4];
                 break;
 
-            // case TransactionTypes.PAYMENT: // TODO
-            // case TransactionTypes.DELIVERY: // TODO
+            case TransactionTypes.PAYMENT:
+                console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
+                paymentTransaction(callbackHadler, client, ...args.slice(1));
+                break;
+
+            case TransactionTypes.DELIVERY:
+                console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
+                deliveryTransaction(callbackHadler, client, ...args.slice(1));
+                break;
+
             case TransactionTypes.ORDER_STATUS:
                 console.log('Running Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                 orderStatusTransaction(client, ...args.slice(1));
