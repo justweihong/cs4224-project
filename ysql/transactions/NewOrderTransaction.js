@@ -17,7 +17,6 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     });
 
     //STEP 3
-    var entry_date = '';
     var O_ALL_LOCAL = 1;
     for (var i = 1; i <= SUPPLIER_WAREHOUSE.length; i++) {
         if (SUPPLIER_WAREHOUSE[i] != W_ID) {
@@ -26,12 +25,6 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     }
     var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + C_ID + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ', CURRENT_TIMESTAMP)';
     await client.query(createNewOrderStmt).catch(err => {
-        console.error(err.stack);
-    });
-
-    await client.query('SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N).then(res => {
-        entry_date = res.rows[0].o_entry_d;
-    }).catch(err => {
         console.error(err.stack);
     });
 
@@ -181,7 +174,13 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     console.log('Warehouse Tax Rate ' + W_TAX + ', District Tax Rate ' + D_TAX);
 
     //OUTPUT STEP 3
-    console.log('Order Number ' + N + ', Entry Date ' + entry_date);
+    var O_ENTRY_D = '';
+    await client.query('SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N).then(res => {
+        O_ENTRY_D = res.rows[0].o_entry_d;
+    }).catch(err => {
+        console.error(err.stack);
+    });
+    console.log('Order Number ' + N + ', Entry Date ' + O_ENTRY_D);
 
     //OUTPUT STEP 4
     console.log('Number of Items ' + NUM_ITEMS + ', Total Amount for Order ' + TOTAL_AMOUNT);
