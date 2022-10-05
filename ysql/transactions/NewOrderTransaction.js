@@ -22,7 +22,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             O_ALL_LOCAL = 0;
         }
     }
-    var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + N + ',' + D_ID + ',' + W_ID + ',' + C_ID + ',' + date_obj + ',' + NULL + ',' + NUM_ITEMS + ',' + O_ALL_LOCAL + ')';
+    var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + N + ',' + D_ID + ',' + W_ID + ',' + C_ID + ',' + date_obj + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ')';
     await client.query(createNewOrderStmt).catch(err => {
         console.error(err.stack);
     });
@@ -85,7 +85,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         }).catch(err => {
             console.error(err.stack);
         });
-        var createNewOrderLineStmt = 'INSERT INTO Order-Line VALUES (' + N + ',' + D_ID + ',' + W_ID + ',' + i + ',' + ITEM_NO + ',' + WAREHOUSE + ',' + QUANTITY[i] + ',' + ITEM_AMOUNT + ', NULL,' +  OL_DIST_INFO;
+        var createNewOrderLineStmt = 'INSERT INTO Order_Lines VALUES (' + N + ',' + D_ID + ',' + W_ID + ',' + i + ',' + ITEM_NO + ',' + WAREHOUSE + ',' + QUANTITY[i] + ',' + ITEM_AMOUNT + ', NULL,' +  OL_DIST_INFO;
         await client.query(createNewOrderLineStmt).catch(err => {
             console.error(err.stack);
         });

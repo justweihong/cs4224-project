@@ -144,7 +144,6 @@ async.series([
         if (err) {
             console.error(err);
         }
-        //console.error("Shutting down connection");
         //client.end();
     }
 );
