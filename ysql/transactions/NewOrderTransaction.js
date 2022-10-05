@@ -1,5 +1,7 @@
 async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
 
+    await client.query('BEGIN TRANSACTION').catch(err => {console.error(err.stack);})
+
     //STEP 1
     var N = 0;
     await client.query('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
@@ -15,15 +17,21 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     });
 
     //STEP 3
-    let date_obj = Date.now();
+    var entry_date = '';
     var O_ALL_LOCAL = 1;
     for (var i = 1; i <= SUPPLIER_WAREHOUSE.length; i++) {
         if (SUPPLIER_WAREHOUSE[i] != W_ID) {
             O_ALL_LOCAL = 0;
         }
     }
-    var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + N + ',' + D_ID + ',' + W_ID + ',' + C_ID + ',' + date_obj + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ')';
+    var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + C_ID + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ', CURRENT_TIMESTAMP)';
     await client.query(createNewOrderStmt).catch(err => {
+        console.error(err.stack);
+    });
+
+    await client.query('SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N).then(res => {
+        entry_date = res.rows[0].o_entry_d;
+    }).catch(err => {
         console.error(err.stack);
     });
 
@@ -150,6 +158,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     });
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
 
+    await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
     console.log('>>>> NEW ORDER TRANSACTION');
 
@@ -172,13 +181,13 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     console.log('Warehouse Tax Rate ' + W_TAX + ', District Tax Rate ' + D_TAX);
 
     //OUTPUT STEP 3
-    console.log('Order Number ' + N + ', Entry Date ' + date_obj);
+    console.log('Order Number ' + N + ', Entry Date ' + entry_date);
 
     //OUTPUT STEP 4
     console.log('Number of Items ' + NUM_ITEMS + ', Total Amount for Order ' + TOTAL_AMOUNT);
 
     //OUTPUT STEP 5
-    for (var i = 1; i < NUM_ITEMS; i++) {
+    for (var i = 0; i < NUM_ITEMS; i++) {
     var ITEM_NO = ITEM_NUMBER[i];
     var I_NAME = 0;
     await client.query('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
