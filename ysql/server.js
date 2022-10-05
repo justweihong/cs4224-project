@@ -88,9 +88,9 @@ async function parser(callbackHandler, filePath) {
         
         // End of item lines, execute new order transaction
         if (itemsLeft == 0) {
-            console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[0] 
-                + ' D_ID: ' + orderDetails[1] + ' C_ID: ' + orderDetails[2] + ' Number of Items: ' + orderDetails[3]);
-            newOrderTransaction(callbackHandler, client, orderDetails[0], orderDetails[1], orderDetails[2], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
+            console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[1] 
+                + ' D_ID: ' + orderDetails[2] + ' C_ID: ' + orderDetails[0] + ' Number of Items: ' + orderDetails[3]);
+            newOrderTransaction(callbackHandler, client, orderDetails[1], orderDetails[2], orderDetails[0], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
             itemNumberList = [];
             supplierWarehouseList = [];
             quantityList = [];

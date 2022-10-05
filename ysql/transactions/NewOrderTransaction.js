@@ -3,7 +3,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     //STEP 1
     var N = 0;
     await client.query('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
-        N = res.rows[0];
+        N = res.rows[0].d_next_o_id;
     }).catch(err => {
         console.error(err.stack);
     });
@@ -38,7 +38,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         let WAREHOUSE = SUPPLIER_WAREHOUSE[i];
         var S_QUANTITY = 0;
         await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
-            S_QUANTITY = res.rows[0];
+            S_QUANTITY = res.rows[0].s_quantity;
         }).catch(err => {
             console.error(err.stack);
         });
@@ -69,7 +69,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         //PART E
         var I_PRICE = 0;
         await client.query('SELECT I_PRICE FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
-            I_PRICE = res.rows[0];
+            I_PRICE = res.rows[0].i_price;
         }).catch(err => {
             console.error(err.stack);
         });
@@ -80,8 +80,46 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
 
         //PART G
         var OL_DIST_INFO = '';
-        await client.query('SELECT S_DIST_'+ D_ID + ' FROM Stocks').then(res => {
-            OL_DIST_INFO = res.rows[0];
+        var DISTRICT = '';
+        if (D_ID === '10') {
+            DISTRICT = D_ID;
+        } else {
+            DISTRICT = '0' + D_ID;
+        }
+
+        await client.query('SELECT S_DIST_'+ DISTRICT + ' FROM Stocks').then(res => {
+            switch(D_ID) {
+                case '1':
+                    OL_DIST_INFO = res.rows[0].s_dist_01;
+                    break;
+                case '2':
+                    OL_DIST_INFO = res.rows[0].s_dist_02;
+                    break;
+                case '3':
+                    OL_DIST_INFO = res.rows[0].s_dist_03;
+                    break;
+                case '4':
+                    OL_DIST_INFO = res.rows[0].s_dist_04;
+                    break;
+                case '5':
+                    OL_DIST_INFO = res.rows[0].s_dist_05;
+                    break;
+                case '6':
+                    OL_DIST_INFO = res.rows[0].s_dist_06;
+                    break;
+                case '7':
+                    OL_DIST_INFO = res.rows[0].s_dist_07;
+                    break;
+                case '8':
+                    OL_DIST_INFO = res.rows[0].s_dist_08;
+                    break;
+                case '9':
+                    OL_DIST_INFO = res.rows[0].s_dist_09;
+                    break;
+                case '10':
+                    OL_DIST_INFO = res.rows[0].s_dist_10;
+                    break;
+            }
         }).catch(err => {
             console.error(err.stack);
         });
@@ -94,19 +132,19 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     //STEP 6
     var W_TAX = 0;
     await client.query('SELECT W_TAX FROM Warehouses WHERE W_ID = ' + W_ID).then(res => {
-        W_TAX = res.rows[0];
+        W_TAX = res.rows[0].w_tax;
     }).catch(err => {
         console.error(err.stack);
     });
     var D_TAX = 0;
     await client.query('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID).then(res => {
-        D_TAX = res.rows[0];
+        D_TAX = res.rows[0].d_tax;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_DISCOUNT = 0;
     await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
-        C_DISCOUNT = res.rows[0];
+        C_DISCOUNT = res.rows[0].c_discount;
     }).catch(err => {
         console.error(err.stack);
     });
@@ -118,13 +156,13 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     //OUTPUT STEP 1
     var C_LAST = 0;
     await client.query('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID).then(res => {
-        C_LAST = res.rows[0];
+        C_LAST = res.rows[0].c_last;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_CREDIT = 0;
     await client.query('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
-        C_CREDIT = res.rows[0];
+        C_CREDIT = res.rows[0].c_credit;
     }).catch(err => {
         console.error(err.stack);
     });
@@ -144,26 +182,27 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     var ITEM_NO = ITEM_NUMBER[i];
     var I_NAME = 0;
     await client.query('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
-        I_NAME = res.rows[0];
+        I_NAME = res.rows[0].i_name;
     }).catch(err => {
         console.error(err.stack);
     });
     var I_PRICE = 0;
     await client.query('SELECT I_PRICE FROM Items Where I_ID = ' + ITEM_NO).then(res => {
-        I_PRICE = res.rows[0];
+        I_PRICE = res.rows[0].i_price;
     }).catch(err => {
         console.error(err.stack);
     });
     var OL_AMOUNT = QUANTITY[i] * I_PRICE;
     var S_QUANTITY = 0;
     await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO).then(res => {
-        S_QUANTITY = res.rows[0];
+        S_QUANTITY = res.rows[0].s_quantity;
     }).catch(err => {
         console.error(err.stack);
     });
 
     console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
     }
+    
 }
 
 module.exports = { newOrderTransaction };

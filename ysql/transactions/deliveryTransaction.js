@@ -49,7 +49,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
         // PROCESS 1d
         var balance
         await client
-            .query('SELECT SUM(ol_amounnt) FROM order_lines WHERE ol_o_id = ' + order_no)
+            .query('SELECT SUM(ol_amount) FROM order_lines WHERE ol_o_id = ' + order_no)
             .then(res => {
                 balance = res;
             })
