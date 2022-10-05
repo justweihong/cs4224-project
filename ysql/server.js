@@ -60,7 +60,7 @@ async function connect(callbackHandler) {
 }
 
 async function parser(callbackHandler, filePath) {
-    fs.readFile(filePath, 'utf8', function (err,data) {
+    fs.readFile(filePath, 'utf8', async function (err,data) {
 
     // Return error for invalid file
     if (err) {
@@ -76,7 +76,7 @@ async function parser(callbackHandler, filePath) {
     let supplierWarehouseList = [];
     let quantityList = [];
 
-    lines.forEach(line => {
+    for (const line of lines) {
         let args = line.split(',');
         
         // Item line, add into items for new order transaction
@@ -107,28 +107,28 @@ async function parser(callbackHandler, filePath) {
 
             case TransactionTypes.PAYMENT:
                 console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
-                paymentTransaction(client, ...args.slice(1));
+                await paymentTransaction(client, ...args.slice(1));
                 break;
 
             case TransactionTypes.DELIVERY:
                 console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
-                deliveryTransaction(client, ...args.slice(1));
+                await deliveryTransaction(client, ...args.slice(1));
                 break;
 
             case TransactionTypes.ORDER_STATUS:
                 console.log('Running Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
-                orderStatusTransaction(client, ...args.slice(1));
+                await orderStatusTransaction(client, ...args.slice(1));
                 break;
 
             case TransactionTypes.STOCK_LEVEL: 
                 console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
-                stockLevelTransaction(client, ...args.slice(1));
+                await stockLevelTransaction(client, ...args.slice(1));
                 break;
             // case TransactionTypes.POPULAR_ITEM:
             // case TransactionTypes.TOP_BALANCE:
             // case TransactionTypes.RELATED_CUSTOMER:
         }
-    })
+    }
 
     // End Parsing
     callbackHandler();
@@ -148,6 +148,6 @@ async.series([
         if (err) {
             console.error(err);
         }
-        //client.end();
+        client.end();
     }
 );
