@@ -31,7 +31,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     var TOTAL_AMOUNT = 0;
 
     //STEP 5
-    for (var i = 1; i <= NUM_ITEMS; i++) {
+    for (var i = 0; i <= NUM_ITEMS; i++) {
 
         //PART A
         let ITEM_NO = ITEM_NUMBER[i];
