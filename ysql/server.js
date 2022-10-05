@@ -7,6 +7,7 @@ const { newOrderTransaction } = require('./transactions/newOrderTransaction');
 const { paymentTransaction } = require('./transactions/paymentTransaction');
 const { deliveryTransaction } = require('./transactions/deliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
+const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
 
 // Config
 const config = {
@@ -119,7 +120,10 @@ async function parser(callbackHandler, filePath) {
                 orderStatusTransaction(client, ...args.slice(1));
                 break;
 
-            // case TransactionTypes.STOCK_LEVEL: // TODO
+            case TransactionTypes.STOCK_LEVEL: 
+                console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
+                stockLevelTransaction(client, ...args.slice(1));
+                break;
             // case TransactionTypes.POPULAR_ITEM:
             // case TransactionTypes.TOP_BALANCE:
             // case TransactionTypes.RELATED_CUSTOMER:
