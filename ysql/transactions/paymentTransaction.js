@@ -34,6 +34,8 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
             console.error(err.stack);
         })
 
+    console.log('>>>> PAYMENT TRANSACTION');
+    
     var row;
     
     // OUTPUT 1

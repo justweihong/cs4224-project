@@ -4,8 +4,8 @@ const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
 const { newOrderTransaction } = require('./transactions/newOrderTransaction');
-const { paymentTransaction } = require('./transactions/paymentTransaction');
-const { deliveryTransaction } = require('./transactions/deliveryTransaction');
+const { paymentTransaction } = require('./transactions/PaymentTransaction');
+const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
 
@@ -148,6 +148,6 @@ async.series([
         if (err) {
             console.error(err);
         }
-        client.end();
+        //client.end();
     }
 );
