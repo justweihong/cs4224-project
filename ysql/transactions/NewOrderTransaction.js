@@ -29,7 +29,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     });
 
     //STEP 4
-    var TOTAL_AMOUNT = 0;
+    var TOTAL_AMOUNT = 0.0;
 
     //STEP 5
     for (var i = 0; i < NUM_ITEMS; i++) {
@@ -124,7 +124,8 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         }).catch(err => {
             console.error(err.stack);
         });
-        var createNewOrderLineStmt = 'INSERT INTO Order_Lines VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + i + ',' + ITEM_NO + ', NULL,' + ITEM_AMOUNT + ',' + WAREHOUSE + ',' + QUANTITY[i] + ',' +  OL_DIST_INFO + ')';
+        var createNewOrderLineStmt = 'INSERT INTO Order_Lines (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER, OL_I_ID, OL_DELIVERY_D, OL_AMOUNT, OL_SUPPLY_W_ID, OL_QUANTITY, OL_DIST_INFO)' +  
+        ' VALUES (' + W_ID + ', ' + D_ID +', '+ N +', ' + (i + 1) + ', ' + ITEM_NO + ', NULL, ' + ITEM_AMOUNT + ', ' + WAREHOUSE + ', ' + QUANTITY[i] + ', \'' + OL_DIST_INFO + '\')';
         await client.query(createNewOrderLineStmt).catch(err => {
             console.error(err.stack);
         });
@@ -149,7 +150,10 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     }).catch(err => {
         console.error(err.stack);
     });
+    D_TAX = parseFloat(D_TAX);
+    W_TAX = parseFloat(W_TAX);
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
+    TOTAL_AMOUNT = TOTAL_AMOUNT.toFixed(2);
 
     await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
@@ -174,8 +178,10 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     console.log('Warehouse Tax Rate ' + W_TAX + ', District Tax Rate ' + D_TAX);
 
     //OUTPUT STEP 3
-    var O_ENTRY_D = '';
-    await client.query('SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N).then(res => {
+    var O_ENTRY_D;
+    var getO_Entry_DQuery = 'SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N;
+    console.log(getO_Entry_DQuery);
+    await client.query(getO_Entry_DQuery).then(res => {
         O_ENTRY_D = res.rows[0].o_entry_d;
     }).catch(err => {
         console.error(err.stack);
@@ -187,28 +193,28 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
 
     //OUTPUT STEP 5
     for (var i = 0; i < NUM_ITEMS; i++) {
-    var ITEM_NO = ITEM_NUMBER[i];
-    var I_NAME = 0;
-    await client.query('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
-        I_NAME = res.rows[0].i_name;
-    }).catch(err => {
-        console.error(err.stack);
-    });
-    var I_PRICE = 0;
-    await client.query('SELECT I_PRICE FROM Items Where I_ID = ' + ITEM_NO).then(res => {
-        I_PRICE = res.rows[0].i_price;
-    }).catch(err => {
-        console.error(err.stack);
-    });
-    var OL_AMOUNT = QUANTITY[i] * I_PRICE;
-    var S_QUANTITY = 0;
-    await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO).then(res => {
-        S_QUANTITY = res.rows[0].s_quantity;
-    }).catch(err => {
-        console.error(err.stack);
-    });
+        var ITEM_NO = ITEM_NUMBER[i];
+        var I_NAME = 0;
+        await client.query('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
+            I_NAME = res.rows[0].i_name;
+        }).catch(err => {
+            console.error(err.stack);
+        });
+        var I_PRICE = 0;
+        await client.query('SELECT I_PRICE FROM Items Where I_ID = ' + ITEM_NO).then(res => {
+            I_PRICE = res.rows[0].i_price;
+        }).catch(err => {
+            console.error(err.stack);
+        });
+        var OL_AMOUNT = QUANTITY[i] * I_PRICE;
+        var S_QUANTITY = 0;
+        await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO).then(res => {
+            S_QUANTITY = res.rows[0].s_quantity;
+        }).catch(err => {
+            console.error(err.stack);
+        });
 
-    console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
+        console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
     }
     
 }
