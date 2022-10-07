@@ -7,18 +7,23 @@ Done in AY22/23 Semester 1
 * Install Yugabyte Locally.
 * Directory structure should be:
 ```
-├── document
-├── project_files (downloaded)
-│   ├── data_files
-│   └── xact_files
-├── ysql
-│   ├── ..
-│   └── ..
-├── ycql
-│   ├── ..
-│   └── ..
-├── README.md
-│── index.html
-```
+├── yugabyte-2.14.1.0 (Yugabyte version required by project)
+├── cs4224-project (THIS PROJECT DIR)
+│   ├── documents
+│   ├── project_files (downloaded data)
+│   │   ├── data_files
+│   │   └── xact_files
+│   ├── ycql
+│   │   ├── ..
+│   │   └── 
+│   ├── ysql
+│   │   ├── setup
+│   │   └── ..
+│   ├── README.md
 
+```
+* To populate the YSQL database, run the following command while in the cs4224-project directory:
+```
+./ysql/setup/init.sh
+```
 

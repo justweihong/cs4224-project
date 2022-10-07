@@ -6,3 +6,6 @@ node_modules
 
 # Project files
 project_files
+
+# Node modules
+node_modules
