@@ -3,13 +3,17 @@ const async = require('async');
 const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
+const { newOrderTransaction } = require('./transactions/newOrderTransaction');
+const { paymentTransaction } = require('./transactions/PaymentTransaction');
+const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
+const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
+const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
 
-
-//TODO: Update server to take in the transactions
+// Config
 const config = {
     host: '127.0.0.1',
     port: '5433',
-    database: 'yugabyte',
+    database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
     // Uncomment and initialize the SSL settings for YugabyteDB Managed and other secured types of deployment
@@ -17,12 +21,29 @@ const config = {
     //     rejectUnauthorized: true,
     //     ca: fs.readFileSync('path_to_your_root_certificate').toString()
     // },
-    connectionTimeoutMillis: 5000
+    // connectionTimeoutMillis: 5000
 };
+
+// Transaction Types
+const TransactionTypes = {
+    NEW_ORDER: 'N',
+    PAYMENT: 'P',
+    DELIVERY: 'D',
+    ORDER_STATUS: 'O',
+    STOCK_LEVEL: 'S',
+    POPULAR_ITEM: 'I',
+    TOP_BALANCE: 'T',
+    RELATED_CUSTOMER: 'R'
+}
+
+const readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 var client;
 
-async function connect(callbackHadler) {
+async function connect(callbackHandler) {
     console.log('>>>> Connecting to YugabyteDB!');
 
     try {
@@ -32,105 +53,101 @@ async function connect(callbackHadler) {
 
         console.log('>>>> Connected to YugabyteDB!');
 
-        callbackHadler();
+        callbackHandler();
     } catch (err) {
-        callbackHadler(err);
+        callbackHandler(err);
     }
 }
 
-async function createDatabase(callbackHadler) {
-    try {
-        var stmt = 'DROP TABLE IF EXISTS DemoAccount';
+async function parser(callbackHandler, filePath) {
+    fs.readFile(filePath, 'utf8', async function (err,data) {
 
-        await client.query(stmt);
-
-        stmt = `CREATE TABLE DemoAccount (
-            id int PRIMARY KEY,
-            name varchar,
-            age int,
-            country varchar,
-            balance int)`;
-
-        await client.query(stmt);
-
-        stmt = `INSERT INTO DemoAccount VALUES
-            (1, 'Jessica', 28, 'USA', 10000),
-            (2, 'John', 28, 'Canada', 9000)`;
-
-        await client.query(stmt);
-
-        console.log('>>>> Successfully created table DemoAccount.');
-
-        callbackHadler();
-    } catch (err) {
-        callbackHadler(err);
+    // Return error for invalid file
+    if (err) {
+        callbackHandler(err);
     }
-}
 
-async function selectAccounts(callbackHadler) {
-    console.log('>>>> Selecting accounts:');
+    const lines = data.split(/\r?\n/);
 
-    try {
-        const res = await client.query('SELECT name, age, country, balance FROM DemoAccount');
-        var row;
+    // Variables for NewOrderTransaction
+    let orderDetails;
+    let itemsLeft = -1;
+    let itemNumberList = [];
+    let supplierWarehouseList = [];
+    let quantityList = [];
 
-        for (i = 0; i < res.rows.length; i++) {
-            row = res.rows[i];
-
-            console.log('name = %s, age = %d, country = %s, balance = %d',
-                row.name, row.age, row.country, row.balance);
+    for (const line of lines) {
+        let args = line.split(',');
+        
+        // Item line, add into items for new order transaction
+        if (itemsLeft > 0) {
+            itemNumberList.push(args[0]);
+            supplierWarehouseList.push(args[1]);
+            quantityList.push(args[2]); 
+            itemsLeft--;
+        }
+        
+        // End of item lines, execute new order transaction
+        if (itemsLeft == 0) {
+            console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[1] 
+                + ' D_ID: ' + orderDetails[2] + ' C_ID: ' + orderDetails[0] + ' Number of Items: ' + orderDetails[3]);
+            newOrderTransaction(callbackHandler, client, orderDetails[1], orderDetails[2], orderDetails[0], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList);
+            itemNumberList = [];
+            supplierWarehouseList = [];
+            quantityList = [];
+            itemsLeft--;
         }
 
-        callbackHadler();
-    } catch (err) {
-        callbackHadler(err);
+        // Transactions
+        switch(args[0]) {
+            case TransactionTypes.NEW_ORDER:
+                orderDetails = args.slice(1);
+                itemsLeft = args[4];
+                break;
+
+            case TransactionTypes.PAYMENT:
+                console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
+                await paymentTransaction(client, ...args.slice(1));
+                break;
+
+            case TransactionTypes.DELIVERY:
+                console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
+                await deliveryTransaction(client, ...args.slice(1));
+                break;
+
+            case TransactionTypes.ORDER_STATUS:
+                console.log('Running Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+                await orderStatusTransaction(client, ...args.slice(1));
+                break;
+
+            case TransactionTypes.STOCK_LEVEL: 
+                console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
+                await stockLevelTransaction(client, ...args.slice(1));
+                break;
+            // case TransactionTypes.POPULAR_ITEM:
+            // case TransactionTypes.TOP_BALANCE:
+            // case TransactionTypes.RELATED_CUSTOMER:
+        }
     }
-}
 
-async function transferMoneyBetweenAccounts(callbackHadler, amount) {
-    try {
-        await client.query('BEGIN TRANSACTION');
-
-        await client.query('UPDATE DemoAccount SET balance = balance - ' + amount + ' WHERE name = \'Jessica\'');
-        await client.query('UPDATE DemoAccount SET balance = balance + ' + amount + ' WHERE name = \'John\'');
-        await client.query('COMMIT');
-
-        console.log('>>>> Transferred %d between accounts.', amount);
-
-        callbackHadler();
-    } catch (err) {
-        callbackHadler(err);
-    }
+    // End Parsing
+    callbackHandler();
+    });
 }
 
 async.series([
-    function (callbackHadler) {
-        connect(callbackHadler);
+    function (callbackHandler) {
+        connect(callbackHandler);
     },
-    function (callbackHadler) {
-        createDatabase(callbackHadler);
+    function (callbackHandler) {
+        parser(callbackHandler, '../project_files/xact_files/test.txt');
     },
-    function (callbackHadler) {
-        selectAccounts(callbackHadler);
-    },
-    function (callbackHadler) {
-        transferMoneyBetweenAccounts(callbackHadler, 800);
-    },
-    function (callbackHadler) {
-        selectAccounts(callbackHadler);
-    }
+    
 ],
     function (err) {
         if (err) {
-            // Applies to logic of the transferMoneyBetweenAccounts method
-            if (err.code == 40001) {
-                console.error(
-                    `The operation is aborted due to a concurrent transaction that is modifying the same set of rows.
-                    Consider adding retry logic or using the pessimistic locking.`);
-            }
-
             console.error(err);
         }
-        client.end();
+        //client.end();
     }
 );
