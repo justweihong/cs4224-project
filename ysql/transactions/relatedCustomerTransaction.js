@@ -42,7 +42,7 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
         for (j = 0; j < givenCustomerOrderLines.rows.length; j++) {
           var givenCustomerOrderLine = givenCustomerOrderLines.rows[j];
 
-          if(otherCustomerOrderLine.ol_i_id = givenCustomerOrderLine.ol_i_id) {
+          if(otherCustomerOrderLine.ol_i_id == givenCustomerOrderLine.ol_i_id) {
             var key = otherCustomerOrderLine.o_c_id.toString().concat("_", otherCustomerOrderLine.ol_o_id);
             var value = otherCustomerOrderLine.ol_i_id;
             if(commonItemOrders.has(key)) {
@@ -59,8 +59,8 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
 		
 		console.log('>>>> Printing Related Customers');
 		for (const relCust of relatedCustomers) {
-          console.log('>>>> %s', relCust);	
-      } 
+        console.log('>>>> %s', relCust);	
+     
     } catch (err) {
         console.error(err.stack);
     }
