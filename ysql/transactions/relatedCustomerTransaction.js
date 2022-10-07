@@ -58,9 +58,12 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
         }
 		
 		console.log('>>>> Printing Related Customers');
+		if (relatedCustomers.size == 0) {
+		console.log('>>>> No related customers found.');
+		} else {
 		for (const relCust of relatedCustomers) {
-        console.log('>>>> %s', relCust);	
-     
+			console.log('>>>> %s', relCust)};	
+		}
     } catch (err) {
         console.error(err.stack);
     }
