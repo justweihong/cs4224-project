@@ -8,6 +8,7 @@ const { paymentTransaction } = require('./transactions/PaymentTransaction');
 const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
+const { relatedCustomerTransaction } = require('./transactions/relatedCustomerTransaction');
 
 // Config
 const config = {
@@ -126,7 +127,10 @@ async function parser(callbackHandler, filePath) {
                 break;
             // case TransactionTypes.POPULAR_ITEM:
             // case TransactionTypes.TOP_BALANCE:
-            // case TransactionTypes.RELATED_CUSTOMER:
+            case TransactionTypes.RELATED_CUSTOMER:
+				console.log('Running Related Customer Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+				await relatedCustomerTransaction(client, ...args.slice(1));
+				break;
         }
     }
 
@@ -140,7 +144,7 @@ async.series([
         connect(callbackHandler);
     },
     function (callbackHandler) {
-        parser(callbackHandler, '../project_files/xact_files/test.txt');
+        parser(callbackHandler, './project_files/xact_files/test.txt');
     },
     
 ],
