@@ -8,7 +8,7 @@ const {
   customers,
 } = require("../sequelize");
 
-const getPopularItems = async (w_id = 5, d_id = 1, l = 5) => {
+const getPopularItems = async (w_id, d_id, l) => {
   console.log(`(${w_id}, ${d_id})`);
 
   const { d_next_o_id: n } = await districts.findOne({
@@ -72,7 +72,8 @@ const getPopularItems = async (w_id = 5, d_id = 1, l = 5) => {
     { quantity: 0, items: [] }
   );
 
-  console.log(popularItems);
+  const nameAndQuantity = [];
+  const nameAndPercentage = [];
 
   for (const i_id of popularItems.items) {
     const res = await order_lines.count({
@@ -96,10 +97,14 @@ const getPopularItems = async (w_id = 5, d_id = 1, l = 5) => {
       logging: false,
     });
 
-    console.log(i_name, res.pop().count / l);
+    nameAndQuantity.push(`${i_name}: ${popularItems.quantity}`)
+    nameAndPercentage.push(`${i_name}: ${(res.pop().count / l * 100).toFixed(2)}%`);
   }
+
+  nameAndQuantity.forEach(n => console.log(n))
+  nameAndPercentage.forEach(n => console.log(n))
 
   process.exit(0);
 };
 
-getPopularItems();
+module.exports = { getPopularItems };

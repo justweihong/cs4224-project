@@ -19,4 +19,4 @@ const getTopBalance = async () => {
   process.exit(0);
 };
 
-getTopBalance();
+module.exports = { getTopBalance };
