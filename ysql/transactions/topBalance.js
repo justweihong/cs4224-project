@@ -16,7 +16,6 @@ const getTopBalance = async () => {
     console.log(`District: ${d_name}`);
   }
 
-  process.exit(0);
 };
 
 module.exports = { getTopBalance };

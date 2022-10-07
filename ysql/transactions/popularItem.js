@@ -104,7 +104,6 @@ const getPopularItems = async (w_id, d_id, l) => {
   nameAndQuantity.forEach(n => console.log(n))
   nameAndPercentage.forEach(n => console.log(n))
 
-  process.exit(0);
 };
 
 module.exports = { getPopularItems };
