@@ -3,15 +3,17 @@ const async = require('async');
 const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
-const { newOrderTransaction } = require('./transactions/newOrderTransaction');
-const { paymentTransaction } = require('./transactions/PaymentTransaction');
-const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
+const { newOrderTransaction } = require('./transactions/NewOrderTransaction');
+const { paymentTransaction } = require('./transactions/paymentTransaction');
+const { deliveryTransaction } = require('./transactions/deliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
+const { getPopularItems } = require('./transactions/popularItem');
+const { getTopBalance } = require('./transactions/topBalance');
 
 // Config
 const config = {
-    host: '127.0.0.1',
+    host: '127.0.1.1',
     port: '5433',
     database: 'supplier_db',
     user: 'yugabyte',
@@ -124,8 +126,14 @@ async function parser(callbackHandler, filePath) {
                 console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
                 await stockLevelTransaction(client, ...args.slice(1));
                 break;
-            // case TransactionTypes.POPULAR_ITEM:
-            // case TransactionTypes.TOP_BALANCE:
+            case TransactionTypes.POPULAR_ITEM:
+                console.log(`Running Popular Item Transaction Statement, Arguments: W_ID: ${args[1]} D_ID: ${args[2]} L: ${args[3]}`)
+                await getPopularItems(...args.slice(1))
+                break
+            case TransactionTypes.TOP_BALANCE:
+                console.log(`Running Top Balance Transaction Statement`)
+                await getTopBalance()
+                break
             // case TransactionTypes.RELATED_CUSTOMER:
         }
     }
