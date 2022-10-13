@@ -26,4 +26,8 @@ Done in AY22/23 Semester 1
 ```
 ./ysql/setup/init.sh
 ```
+* To populate the YCQL database, run the following command while in the cs4224-project directory:
+```
+./ycql/setup/init.sh
+```
 
