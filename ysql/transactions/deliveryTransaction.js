@@ -1,4 +1,6 @@
 async function deliveryTransaction(client, w_id, carrier_id) {
+    var isUpdated = false;
+
     await client
         .query('BEGIN TRANSACTION')
         .catch(err => {
@@ -11,7 +13,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
         var cust_no;
 
         await client
-            .query('SELECT MIN(o_id) FROM orders WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + i + 1 + ' AND o_carrier_id = ' + null)
+            .query('SELECT MIN(o_id) FROM orders WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + (i + 1) + ' AND o_carrier_id IS NULL')
             .then(res => {
                 order_no = res.rows[0].min;
             })
@@ -20,8 +22,13 @@ async function deliveryTransaction(client, w_id, carrier_id) {
             })
 
         if (order_no == null) {
+            if (i == 9 && !isUpdated) {
+                console.log('There is no yet-to-delivered orders in warehouse ' + w_id + '.');
+            }
             continue;
         }
+
+        var isUpdated = true;
 
         await client
             .query('SELECT o_c_id FROM orders WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + (i + 1) + ' AND o_id = ' + order_no)
@@ -51,7 +58,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
         await client
             .query('SELECT SUM(ol_amount) FROM order_lines WHERE ol_o_id = ' + order_no)
             .then(res => {
-                balance = res;
+                balance = res.rows[0].sum;
             })
             .catch(err => {
                 console.error(err.stack);
@@ -66,9 +73,11 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
     await client
         .query('COMMIT')
+        .then(() => { console.log('>>>> DELIVERY TRANSACTION SUCCESS'); })
         .catch(err => {
             console.error(err.stack);
         })
+
 }
 
 module.exports = { deliveryTransaction };
