@@ -7,3 +7,6 @@ project_files
 
 # Node modules
 node_modules
+
+# Benchmarking ourputs
+ysql/clients.csv
