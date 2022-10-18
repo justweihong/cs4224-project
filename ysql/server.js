@@ -11,6 +11,7 @@ const { stockLevelTransaction } = require('./transactions/StockLevelTransaction'
 const { executeFunction } = require('./util/executeFunction');
 const { measurePerformance } = require('./util/measurePerformance');
 const { outputClients } = require('./util/outputClients');
+const { outputThroughput } = require('./util/outputThroughput');
 
 // Config
 const config = {
@@ -169,7 +170,7 @@ async.series([
         //! Test Clients
         const clientPrograms = [
             parser(20),
-            parser(20),
+            parser(21),
             parser(20),
         ]
 
@@ -177,6 +178,7 @@ async.series([
         Promise.all(clientPrograms)
             .then(async (allPerformanceMetrics) => {
                 await outputClients(allPerformanceMetrics, './clients.csv');
+                await outputThroughput(allPerformanceMetrics, './throughput.csv')
                 callbackHandler("Client drivers ran successfully.")
             })
     },
