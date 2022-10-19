@@ -12,6 +12,7 @@ const { executeFunction } = require('./util/executeFunction');
 const { measurePerformance } = require('./util/measurePerformance');
 const { outputClients } = require('./util/outputClients');
 const { outputThroughput } = require('./util/outputThroughput');
+const { generateDBState } = require('./util/generateDBState');
 
 // Config
 const config = {
@@ -179,7 +180,8 @@ async.series([
             .then(async (allPerformanceMetrics) => {
                 await outputClients(allPerformanceMetrics, './clients.csv');
                 await outputThroughput(allPerformanceMetrics, './throughput.csv')
-                callbackHandler("Client drivers ran successfully.")
+                await generateDBState(client, './dbstate.csv')
+                callbackHandler("5. END OF BENCHMARKING")
             })
     },
     
