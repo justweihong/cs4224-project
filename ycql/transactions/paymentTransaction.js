@@ -1,35 +1,23 @@
 async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
-    await client
-        .query('BEGIN TRANSACTION')
-        .catch(err => {
-            console.error(err.stack);
-        })
-
     // PROCESS 1
     await client
-        .query('UPDATE warehouses SET w_ytd = w_ytd + ' + payment + ' WHERE w_id = ' + c_w_id)
+        .execute('UPDATE warehouses SET w_ytd = w_ytd + ' + payment + ' WHERE w_id = ' + c_w_id)
         .catch(err => {
             console.error(err.stack);
         })
 
     // PROCESS 2
     await client
-        .query('UPDATE districts SET d_ytd = d_ytd + ' + payment + ' WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
+        .execute('UPDATE districts SET d_ytd = d_ytd + ' + payment + ' WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
         .catch(err => {
             console.error(err.stack);
         })
 
     // PROCESS 3
     await client
-        .query('UPDATE customers SET c_balance = c_balance - ' + payment 
+        .execute('UPDATE customers SET c_balance = c_balance - ' + payment 
             + ', c_ytd_payment = c_ytd_payment + ' + payment
             + ', c_payment_cnt = c_payment_cnt + 1 WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
-        .catch(err => {
-            console.error(err.stack);
-        })
-
-    await client
-        .query('COMMIT')
         .catch(err => {
             console.error(err.stack);
         })
@@ -40,7 +28,7 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
     
     // OUTPUT 1
     await client
-        .query('SELECT * FROM customers WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
+        .execute('SELECT * FROM customers WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
         .then(res => {
             row = res.rows[0];
             console.log('Customer Identifier: (%d, %d, %d), Name: (%s, %s, %s)',
@@ -56,7 +44,7 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
       
     // OUTPUT 2
     await client
-        .query('SELECT * FROM warehouses WHERE w_id = ' + c_w_id)
+        .execute('SELECT * FROM warehouses WHERE w_id = ' + c_w_id)
         .then(res => {
             row = res.rows[0];
             console.log('Warehouse Address: (%s, %s, %s, %s, %s)',
@@ -69,7 +57,7 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
       
     // OUTPUT 3
     await client
-        .query('SELECT * FROM districts WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
+        .execute('SELECT * FROM districts WHERE d_w_id = ' + c_w_id + ' AND d_id = ' + c_d_id)
         .then(res => {
             row = res.rows[0];
             console.log('District Address: (%s, %s, %s, %s, %s)',

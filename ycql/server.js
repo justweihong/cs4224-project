@@ -1,4 +1,4 @@
-var pg = require('pg');
+var cassandra = require('cassandra-driver');
 const async = require('async');
 const fs = require('fs');
 const { newOrderTransaction } = require('./transactions/newOrderTransaction');
@@ -6,20 +6,15 @@ const { paymentTransaction } = require('./transactions/PaymentTransaction');
 const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
+const { topBalanceTransacation } = require('./transactions/popularItemTransaction');
+const { popularItemTransaction } = require('./transactions/topBalanceTransaction');
 
 // Config
 const config = {
-    host: '127.0.0.1',
-    port: '5433',
-    database: 'supplier_db',
-    user: 'yugabyte',
-    password: 'yugabyte',
-    // Uncomment and initialize the SSL settings for YugabyteDB Managed and other secured types of deployment
-    // ssl: {
-    //     rejectUnauthorized: true,
-    //     ca: fs.readFileSync('path_to_your_root_certificate').toString()
-    // },
-    // connectionTimeoutMillis: 5000
+    contactPoints: ['127.0.0.1'],
+    localDataCenter: 'datacenter1',
+    keyspace: 'supplier_db',
+    credentials: { username: 'cassandra', password: 'cassandra' }
 };
 
 // Transaction Types
@@ -45,7 +40,7 @@ async function connect(callbackHandler) {
     console.log('>>>> Connecting to YugabyteDB!');
 
     try {
-        client = new pg.Client(config);
+        client = new cassandra.Client(config);
 
         await client.connect();
 
@@ -122,8 +117,14 @@ async function parser(callbackHandler, filePath) {
                 console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
                 await stockLevelTransaction(client, ...args.slice(1));
                 break;
-            // case TransactionTypes.POPULAR_ITEM:
-            // case TransactionTypes.TOP_BALANCE:
+            case TransactionTypes.POPULAR_ITEM:
+                console.log(`Running Popular Item Transaction Statement, Arguments: W_ID: ${args[1]} D_ID: ${args[2]} L: ${args[3]}`);
+                await getPopularItems(...args.slice(1));
+                break;
+            case TransactionTypes.TOP_BALANCE:
+                console.log(`Running Top Balance Transaction Statement`);
+                await getTopBalance();
+                break;
             // case TransactionTypes.RELATED_CUSTOMER:
         }
     }

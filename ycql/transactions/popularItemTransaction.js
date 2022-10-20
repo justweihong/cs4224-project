@@ -1,16 +1,9 @@
 async function getPopularItems(client, w_id, d_id, l) {
-    await client
-        .query('BEGIN TRANSACTION')
-        .catch(err => {
-            console.error(err.stack);
-        })
-
-        console.log('District Identifier (' + w_id + ', ' + d_id + ')');
-        console.log('Last Order to be examined : ' + l);
-
+    console.log('District Identifier (' + w_id + ', ' + d_id + ')');
+    console.log('Last Order to be examined : ' + l);
 
     var N = 0;
-    await client.query('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + w_id + ' AND D_ID = ' + d_id).then(res => {
+    await client.execute('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + w_id + ' AND D_ID = ' + d_id).then(res => {
         N = res.rows[0].d_next_o_id;
     }).catch(err => {
         console.error(err.stack);
@@ -19,7 +12,7 @@ async function getPopularItems(client, w_id, d_id, l) {
     var selectLastOrderStatement = 'SELECT * FROM Orders WHERE O_W_ID = ' + w_id + ' AND O_D_ID = ' + d_id + 'ORDER BY O_ID DESC LIMIT ' + l;
     var S;
 
-    await client.query(selectLastOrderStatement).then(res => {
+    await client.execute(selectLastOrderStatement).then(res => {
         S = res.rows;
     }).catch(err => {
         console.error(err.stack);
@@ -34,7 +27,7 @@ async function getPopularItems(client, w_id, d_id, l) {
 
         var getCustomerNameStatement = 'SELECT * FROM Customers WHERE C_W_ID = ' + w_id + ' AND C_D_ID = ' + d_id + ' AND C_ID = ' + order.o_c_id;
         var customer;
-        await client.query(getCustomerNameStatement).then(res => {
+        await client.execute(getCustomerNameStatement).then(res => {
             customer = res.rows[0];
         }).catch(err => {
             console.error(err.stack);
@@ -43,7 +36,7 @@ async function getPopularItems(client, w_id, d_id, l) {
 
         var getOrderlinesStatement = 'SELECT * FROM Order_Lines WHERE OL_W_ID = ' + w_id + ' AND OL_D_ID = ' + d_id + ' AND OL_O_ID = ' + order.o_id;
         var orderLines;
-        await client.query(getOrderlinesStatement).then(res => {
+        await client.execute(getOrderlinesStatement).then(res => {
             orderLines = res.rows;
             orderLinesList.push(orderLines);
         }).catch(err => {
@@ -64,7 +57,7 @@ async function getPopularItems(client, w_id, d_id, l) {
 
                         var getItemNameStatement = 'SELECT * FROM Items WHERE I_ID = ' + nextOrderItem.ol_i_id;
                         var itemName;
-                        await client.query(getItemNameStatement).then(res => {
+                        await client.execute(getItemNameStatement).then(res => {
                             itemName = res.rows[0].i_name;
                             console.log('Item name : ' + itemName + ' Quantity Ordered : ' + nextOrderItem.ol_quantity);
                         }).catch(err => {
@@ -85,7 +78,7 @@ async function getPopularItems(client, w_id, d_id, l) {
                         popularItems.push(orderItem.ol_i_id);
                         var getItemNameStatement = 'SELECT * FROM Items WHERE I_ID = ' + orderItem.ol_i_id;
                         var itemName;
-                        await client.query(getItemNameStatement).then(res => {
+                        await client.execute(getItemNameStatement).then(res => {
                             itemName = res.rows[0].i_name;
                             console.log('Item name : ' + itemName + ' Quantity Ordered : ' + nextOrderItem.ol_quantity);
                         }).catch(err => {

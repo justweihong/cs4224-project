@@ -1,8 +1,7 @@
 async function getTopBalance(client) {
-    
     var getTopBalanceStatement = 'SELECT * FROM Customers ORDER BY C_BALANCE DESC LIMIT 10';
     var customerList = []
-    await client.query(getTopBalanceStatement).then(res => {
+    await client.execute(getTopBalanceStatement).then(res => {
         customerList = res.rows;
     }).catch(err => {
         console.error(err.stack);
@@ -15,7 +14,7 @@ async function getTopBalance(client) {
 
         var getWarehouseNameStatement = 'SELECT * FROM Warehouses WHERE W_ID = ' + currentCustomer.c_w_id;
         var warehouseName;
-        await client.query(getWarehouseNameStatement).then(res => {
+        await client.execute(getWarehouseNameStatement).then(res => {
             warehouseName = res.rows[0].w_name;
         }).catch(err => {
             console.error(err.stack);
@@ -24,7 +23,7 @@ async function getTopBalance(client) {
 
         var getDistrictNameStatement = 'SELECT * FROM Districts WHERE D_ID = ' + currentCustomer.c_d_id + ' AND D_W_ID = ' + currentCustomer.c_w_id;
         var districtName;
-        await client.query(getDistrictNameStatement).then(res => {
+        await client.execute(getDistrictNameStatement).then(res => {
             districtName = res.rows[0].d_name;
         }).catch(err => {
             console.error(err.stack);

@@ -1,19 +1,13 @@
 async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
-    await client
-        .query('BEGIN TRANSACTION')
-        .catch(err => {
-            console.error(err.stack);
-        })
-
         var N = 0;
-    await client.query('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
+    await client.execute('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
         N = res.rows[0].d_next_o_id;
     }).catch(err => {
         console.error(err.stack);
     });
 
     let nPlusOne = N + 1; 
-    await client.query('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne).catch(err => {
+    await client.execute('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne).catch(err => {
         console.error(err.stack);
     });
 
@@ -24,7 +18,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         }
     }
     var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + C_ID + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ', CURRENT_TIMESTAMP)';
-    await client.query(createNewOrderStmt).catch(err => {
+    await client.execute(createNewOrderStmt).catch(err => {
         console.error(err.stack);
     });
 
@@ -35,7 +29,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         let ITEM_NO = ITEM_NUMBER[i];
         let WAREHOUSE = SUPPLIER_WAREHOUSE[i];
         var S_QUANTITY = 0;
-        await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
+        await client.execute('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
             S_QUANTITY = res.rows[0].s_quantity;
         }).catch(err => {
             console.error(err.stack);
@@ -57,12 +51,12 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             ', S_YTD = S_YTD + ' + QUANTITY[i] + ', S_ORDER_CNT = S_ORDER_CNT + 1 WHERE S_W_ID = ' + 
             WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO;
         }
-        await client.query(updateStockStmt).catch(err => {
+        await client.execute(updateStockStmt).catch(err => {
             console.error(err.stack);
         });
 
         var I_PRICE = 0;
-        await client.query('SELECT I_PRICE FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
+        await client.execute('SELECT I_PRICE FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
             I_PRICE = res.rows[0].i_price;
         }).catch(err => {
             console.error(err.stack);
@@ -79,7 +73,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             DISTRICT = '0' + D_ID;
         }
 
-        await client.query('SELECT S_DIST_'+ DISTRICT + ' FROM Stocks').then(res => {
+        await client.execute('SELECT S_DIST_'+ DISTRICT + ' FROM Stocks').then(res => {
             switch(D_ID) {
                 case '1':
                     OL_DIST_INFO = res.rows[0].s_dist_01;
@@ -117,25 +111,25 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         });
         var createNewOrderLineStmt = 'INSERT INTO Order_Lines (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER, OL_I_ID, OL_DELIVERY_D, OL_AMOUNT, OL_SUPPLY_W_ID, OL_QUANTITY, OL_DIST_INFO)' +  
         ' VALUES (' + W_ID + ', ' + D_ID +', '+ N +', ' + (i + 1) + ', ' + ITEM_NO + ', NULL, ' + ITEM_AMOUNT + ', ' + WAREHOUSE + ', ' + QUANTITY[i] + ', \'' + OL_DIST_INFO + '\')';
-        await client.query(createNewOrderLineStmt).catch(err => {
+        await client.execute(createNewOrderLineStmt).catch(err => {
             console.error(err.stack);
         });
     }
 
     var W_TAX = 0;
-    await client.query('SELECT W_TAX FROM Warehouses WHERE W_ID = ' + W_ID).then(res => {
+    await client.execute('SELECT W_TAX FROM Warehouses WHERE W_ID = ' + W_ID).then(res => {
         W_TAX = res.rows[0].w_tax;
     }).catch(err => {
         console.error(err.stack);
     });
     var D_TAX = 0;
-    await client.query('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID).then(res => {
+    await client.execute('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID).then(res => {
         D_TAX = res.rows[0].d_tax;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_DISCOUNT = 0;
-    await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.execute('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
         C_DISCOUNT = res.rows[0].c_discount;
     }).catch(err => {
         console.error(err.stack);
@@ -144,19 +138,17 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     W_TAX = parseFloat(W_TAX);
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
     TOTAL_AMOUNT = TOTAL_AMOUNT.toFixed(2);
-
-    await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
     console.log('>>>> NEW ORDER TRANSACTION');
 
     var C_LAST = 0;
-    await client.query('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.execute('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID).then(res => {
         C_LAST = res.rows[0].c_last;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_CREDIT = 0;
-    await client.query('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.execute('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
         C_CREDIT = res.rows[0].c_credit;
     }).catch(err => {
         console.error(err.stack);
@@ -168,7 +160,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     var O_ENTRY_D;
     var getO_Entry_DQuery = 'SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N;
     console.log(getO_Entry_DQuery);
-    await client.query(getO_Entry_DQuery).then(res => {
+    await client.execute(getO_Entry_DQuery).then(res => {
         O_ENTRY_D = res.rows[0].o_entry_d;
     }).catch(err => {
         console.error(err.stack);
@@ -180,20 +172,20 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     for (var i = 0; i < NUM_ITEMS; i++) {
         var ITEM_NO = ITEM_NUMBER[i];
         var I_NAME = 0;
-        await client.query('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
+        await client.execute('SELECT I_NAME FROM Items WHERE I_ID = ' + ITEM_NO).then(res => {
             I_NAME = res.rows[0].i_name;
         }).catch(err => {
             console.error(err.stack);
         });
         var I_PRICE = 0;
-        await client.query('SELECT I_PRICE FROM Items Where I_ID = ' + ITEM_NO).then(res => {
+        await client.execute('SELECT I_PRICE FROM Items Where I_ID = ' + ITEM_NO).then(res => {
             I_PRICE = res.rows[0].i_price;
         }).catch(err => {
             console.error(err.stack);
         });
         var OL_AMOUNT = QUANTITY[i] * I_PRICE;
         var S_QUANTITY = 0;
-        await client.query('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO).then(res => {
+        await client.execute('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + W_ID + ' AND S_I_ID = ' + ITEM_NO).then(res => {
             S_QUANTITY = res.rows[0].s_quantity;
         }).catch(err => {
             console.error(err.stack);
