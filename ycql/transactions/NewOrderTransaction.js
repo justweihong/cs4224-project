@@ -1,7 +1,13 @@
 const BigDecimal = require('cassandra-driver').types.BigDecimal;
 
 async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
-        var N = 0;
+    await client
+        .execute('START TRANSACTION')
+        .catch(err => {
+            console.error(err.stack);
+        })
+
+    var N = 0;
     await client.execute('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
         N = res.rows[0].d_next_o_id;
     }).catch(err => {
@@ -145,6 +151,12 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     W_TAX = parseFloat(W_TAX);
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
     TOTAL_AMOUNT = TOTAL_AMOUNT.toFixed(2);
+    
+    await client
+        .execute('COMMIT')
+        .catch(err => {
+            console.error(err.stack);
+        })
     
     console.log('>>>> NEW ORDER TRANSACTION');
 

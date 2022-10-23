@@ -3,6 +3,12 @@ const BigDecimal = require('cassandra-driver').types.BigDecimal;
 async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
     var PAYMENT_DECIMAL = BigDecimal.fromNumber(parseFloat(payment));
 
+    await client
+        .execute('START TRANSACTION')
+        .catch(err => {
+            console.error(err.stack);
+        })
+
     // PROCESS 1
     var NEW_W_YTD;
     await client
@@ -50,10 +56,17 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
     .catch(err => {
         console.error(err.stack);
     })
+
     await client
         .execute('UPDATE customers SET c_balance = ' + NEW_BALANCE 
             + ', c_ytd_payment = ' + NEW_C_YTD
             + ', c_payment_cnt = ' + NEW_PAYMENT_CNT + ' WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
+        .catch(err => {
+            console.error(err.stack);
+        })
+
+    await client
+        .execute('COMMIT')
         .catch(err => {
             console.error(err.stack);
         })

@@ -4,6 +4,12 @@ async function deliveryTransaction(client, w_id, carrier_id) {
     if (carrier_id < 1 || carrier_id > 10) {
         console.error('Carrier ID does not fall betwwen the range of [1,10].');
     } else {
+        await client
+            .execute('START TRANSACTION')
+            .catch(err => {
+                console.error(err.stack);
+            })
+
         for (i = 0; i < 10; i++) {
             // PROCESS 1a
             var order_no;
@@ -94,7 +100,14 @@ async function deliveryTransaction(client, w_id, carrier_id) {
                 })
         }
 
-        console.log('>>>> DELIVERY TRANSACTION SUCCESS');
+        await client
+            .execute('COMMIT')
+            .then(() => {
+                console.log('>>>> DELIVERY TRANSACTION SUCCESS');
+            })
+            .catch(err => {
+                console.error(err.stack);
+            })
     }
 }
 

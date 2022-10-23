@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS warehouses (
     w_tax decimal,
     w_ytd decimal,
     PRIMARY KEY (w_id)
-);
+) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS districts (
     d_w_id integer,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS districts (
     d_ytd decimal,
     d_next_o_id integer,
     PRIMARY KEY (d_w_id, d_id)
-);
+) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS customers (
     c_w_id integer,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS customers (
     c_delivery_cnt integer,
     c_data varchar,
     PRIMARY KEY ((c_w_id, c_d_id), c_id)
-);
+) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS orders (
     o_w_id integer,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS items (
     i_im_id integer,
     i_data varchar,
     PRIMARY KEY (i_id)
-);
+) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS order_lines (
     ol_w_id integer,
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS order_lines (
     ol_quantity decimal,
     ol_dist_info varchar,
     PRIMARY KEY ((ol_w_id, ol_d_id), ol_o_id, ol_number)
-);
+) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS stocks (
     s_w_id integer,
@@ -105,4 +105,4 @@ CREATE TABLE IF NOT EXISTS stocks (
     s_dist_10 varchar,
     s_data varchar,
     PRIMARY KEY (s_w_id, s_i_id)
-);
+) WITH transactions = { 'enabled' : true };
