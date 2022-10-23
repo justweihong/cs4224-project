@@ -7,7 +7,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
     });
 
     let nPlusOne = N + 1; 
-    await client.execute('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne).catch(err => {
+    await client.execute('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne + ' WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).catch(err => {
         console.error(err.stack);
     });
 
@@ -17,7 +17,8 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             O_ALL_LOCAL = 0;
         }
     }
-    var createNewOrderStmt = 'INSERT INTO Orders VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + C_ID + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ', CURRENT_TIMESTAMP)';
+    var createNewOrderStmt = 'INSERT INTO Orders (O_W_ID, O_D_ID, O_ID, O_C_ID, O_CARRIER_ID, O_OL_CNT, O_ALL_LOCAL, O_ENTRY_D)' 
+        + ' VALUES (' + W_ID + ',' + D_ID + ',' + N + ',' + C_ID + ', NULL,' + NUM_ITEMS + ',' + O_ALL_LOCAL + ', toTimestamp(now()))';
     await client.execute(createNewOrderStmt).catch(err => {
         console.error(err.stack);
     });
@@ -110,7 +111,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             console.error(err.stack);
         });
         var createNewOrderLineStmt = 'INSERT INTO Order_Lines (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER, OL_I_ID, OL_DELIVERY_D, OL_AMOUNT, OL_SUPPLY_W_ID, OL_QUANTITY, OL_DIST_INFO)' +  
-        ' VALUES (' + W_ID + ', ' + D_ID +', '+ N +', ' + (i + 1) + ', ' + ITEM_NO + ', NULL, ' + ITEM_AMOUNT + ', ' + WAREHOUSE + ', ' + QUANTITY[i] + ', \'' + OL_DIST_INFO + '\')';
+            ' VALUES (' + W_ID + ', ' + D_ID +', '+ N +', ' + (i + 1) + ', ' + ITEM_NO + ', NULL, ' + ITEM_AMOUNT + ', ' + WAREHOUSE + ', ' + QUANTITY[i] + ', \'' + OL_DIST_INFO + '\')';
         await client.execute(createNewOrderLineStmt).catch(err => {
             console.error(err.stack);
         });

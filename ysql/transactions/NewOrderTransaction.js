@@ -12,7 +12,7 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
 
     //STEP 2
     let nPlusOne = N + 1; 
-    await client.query('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne).catch(err => {
+    await client.query('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne + ' WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).catch(err => {
         console.error(err.stack);
     });
 
