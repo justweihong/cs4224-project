@@ -1,3 +1,5 @@
+const BigDecimal = require('cassandra-driver').types.BigDecimal;
+
 async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
         var N = 0;
     await client.execute('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).then(res => {
@@ -30,8 +32,11 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         let ITEM_NO = ITEM_NUMBER[i];
         let WAREHOUSE = SUPPLIER_WAREHOUSE[i];
         var S_QUANTITY = 0;
-        await client.execute('SELECT S_QUANTITY FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
+        var QUANTITY_DECIMAL = BigDecimal.fromNumber(parseFloat(QUANTITY[i]));
+        var NEW_S_YTD;
+        await client.execute('SELECT S_QUANTITY, S_YTD FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
             S_QUANTITY = res.rows[0].s_quantity;
+            NEW_S_YTD = res.rows[0].s_ytd.add(QUANTITY_DECIMAL);
         }).catch(err => {
             console.error(err.stack);
         });
@@ -42,14 +47,15 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
             ADJUSTED_QTY = ADJUSTED_QTY + 100;
         }
 
+
         var updateStockStmt = "";
         if (SUPPLIER_WAREHOUSE[i] != W_ID) {
             updateStockStmt = 'UPDATE Stocks SET S_QUANTITY = ' + ADJUSTED_QTY + 
-            ', S_YTD = S_YTD + ' + QUANTITY[i] + ', S_ORDER_CNT = S_ORDER_CNT + 1, S_REMOTE_CNT = S_REMOTE_CNT + 1 WHERE S_W_ID = ' + 
+            ', S_YTD = ' + NEW_S_YTD + ', S_ORDER_CNT = S_ORDER_CNT + 1, S_REMOTE_CNT = S_REMOTE_CNT + 1 WHERE S_W_ID = ' + 
             WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO;
         } else {
             updateStockStmt = 'UPDATE Stocks SET S_QUANTITY = ' + ADJUSTED_QTY + 
-            ', S_YTD = S_YTD + ' + QUANTITY[i] + ', S_ORDER_CNT = S_ORDER_CNT + 1 WHERE S_W_ID = ' + 
+            ', S_YTD = ' + NEW_S_YTD + ', S_ORDER_CNT = S_ORDER_CNT + 1 WHERE S_W_ID = ' + 
             WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO;
         }
         await client.execute(updateStockStmt).catch(err => {

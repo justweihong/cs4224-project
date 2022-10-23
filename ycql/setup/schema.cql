@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS warehouses (
     w_ytd decimal,
     PRIMARY KEY (w_id)
 );
+
 CREATE TABLE IF NOT EXISTS districts (
     d_w_id integer,
     d_id integer,
