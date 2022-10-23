@@ -11,7 +11,7 @@ async function outputClients(allPerformanceMetrics, filePath) {
             console.error(err);
         }
     })
-    console.log("4.1 REPORT CLIENTS STARTED");
+    console.log("4.1 REPORT CLIENTS COMPLETED");
 }
 
 module.exports = { outputClients };

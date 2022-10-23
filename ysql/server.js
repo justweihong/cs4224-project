@@ -3,11 +3,16 @@ const async = require('async');
 const fs = require('fs');
 const { callbackify } = require('util');
 const { rows } = require('pg/lib/defaults');
+
 const { newOrderTransaction } = require('./transactions/newOrderTransaction');
-const { paymentTransaction } = require('./transactions/PaymentTransaction');
-const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
-const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
-const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
+const { paymentTransaction } = require('./transactions/paymentTransaction');
+const { deliveryTransaction } = require('./transactions/deliveryTransaction');
+const { orderStatusTransaction } = require('./transactions/orderStatusTransaction');
+const { stockLevelTransaction } = require('./transactions/stockLevelTransaction');
+const { popularItemTransaction } = require('./transactions/popularItemTransaction');
+const { topBalanceTransaction } = require('./transactions/topBalanceTransaction');
+const { relatedCustomerTransaction } = require('./transactions/relatedCustomerTransaction');
+
 const { executeFunction } = require('./util/executeFunction');
 const { measurePerformance } = require('./util/measurePerformance');
 const { outputClients } = require('./util/outputClients');
@@ -66,7 +71,7 @@ async function connect(callbackHandler) {
 
 async function parser(clientNo) {
     return new Promise((resolve, reject) => {
-        const filePath = `../project_files/xact_files/${clientNo}.txt`;
+        const filePath = `./project_files/xact_files/{clientNo}.txt`;
         fs.readFile(filePath, 'utf8', async function (err,data) {
     
         // Return error for invalid file
@@ -131,17 +136,29 @@ async function parser(clientNo) {
                     break;
     
                 case TransactionTypes.ORDER_STATUS:
-                    console.log('Running Order Status Transaction Statement, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+                    console.log('Running Order Status Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                     txnLatency = await executeFunction(orderStatusTransaction, client, args.slice(1));
                     break;
     
                 case TransactionTypes.STOCK_LEVEL: 
-                    console.log('Running Stock Level Transaction Statement, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
+                    console.log('Running Stock Level Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
                     txnLatency = await executeFunction(stockLevelTransaction, client, args.slice(1));
                     break;
-                // case TransactionTypes.POPULAR_ITEM:
-                // case TransactionTypes.TOP_BALANCE:
-                // case TransactionTypes.RELATED_CUSTOMER:
+				
+				case TransactionTypes.POPULAR_ITEM: 
+                    console.log('Running Popular Item Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' no of last orders examined: ' + args[3]);
+                    txnLatency = await executeFunction(popularItemTransaction, client, args.slice(1));
+                    break;
+					
+				case TransactionTypes.TOP_BALANCE: 
+                    console.log('Running Top Balance Transaction, Arguments: [none]');
+                    txnLatency = await executeFunction(topBalanceTransaction, client, args.slice(1));
+                    break;
+				
+				case TransactionTypes.RELATED_CUSTOMER: 
+                    console.log('Running Related Customer Transaction, Arguments: Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
+                    txnLatency = await executeFunction(relatedCustomerTransaction, client, args.slice(1));
+                    break;
             }
             txnLatencies.push(txnLatency)
         }
@@ -162,18 +179,9 @@ async.series([
 
     // Run client drivers
     function (callbackHandler) {
-        // Execute client drivers in parallel
-
         const clientNumbers = [...Array(20).keys()]
 
-        //! Actual clients
-        // const clientPrograms = clientNumbers.map( clientNo => parser(clientNo));
-        //! Test Clients
-        const clientPrograms = [
-            parser(20),
-            parser(21),
-            parser(20),
-        ]
+        const clientPrograms = clientNumbers.map( clientNo => parser(clientNo));
 
         // Wait for all of them to be completed
         Promise.all(clientPrograms)

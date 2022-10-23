@@ -1,7 +1,7 @@
 async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_c_id) {
     try { 
-      console.log('>>>> Given customer has warehouse %s, district %s and id %s.', given_w_id, given_d_id, given_c_id)
-      console.log('>>>> Identifying customers related to given customer.');
+      //console.log('>>>> Given customer has warehouse %s, district %s and id %s.', given_w_id, given_d_id, given_c_id)
+      //console.log('>>>> Identifying customers related to given customer.');
       var stmt = `WITH givenCustomerOrders AS 
       (SELECT orders.o_w_id, orders.o_d_id, orders.o_id 
 	  FROM orders 
@@ -15,7 +15,7 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
       order_lines.ol_o_id = givenCustomerOrders.o_id`;
 
       const givenCustomerOrderLines = await client.query(stmt);
-      console.log('>>>> Order lines for given customer procured.')
+      //console.log('>>>> Order lines for given customer procured.')
 
       stmt = `WITH otherCustomerOrders AS 
       (SELECT orders.o_w_id, orders.o_d_id, orders.o_id, orders.o_c_id

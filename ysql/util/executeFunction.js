@@ -1,3 +1,5 @@
+const {performance} = require('perf_hooks');
+
 /**
  * Acts as a function wrapper for transaction methods so that the performance metrics can be recorded.
  * @param {*} txnMethod Transaction method

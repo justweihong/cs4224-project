@@ -1,6 +1,6 @@
 const { customers, warehouses, districts } = require("../sequelize");
 
-const getTopBalance = async () => {
+const topBalanceTransaction = async () => {
   const res = await customers.findAll({
     limit: 10,
     order: [["c_balance", "DESC"]],
@@ -15,8 +15,6 @@ const getTopBalance = async () => {
     console.log(`Warehouse: ${w_name}`);
     console.log(`District: ${d_name}`);
   }
-
-  process.exit(0);
 };
 
-module.exports = { getTopBalance };
+module.exports = { topBalanceTransaction };

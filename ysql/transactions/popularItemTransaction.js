@@ -8,7 +8,7 @@ const {
   customers,
 } = require("../sequelize");
 
-const getPopularItems = async (w_id, d_id, l) => {
+const popularItemTransaction = async (w_id, d_id, l) => {
   console.log(`(${w_id}, ${d_id})`);
 
   const { d_next_o_id: n } = await districts.findOne({
@@ -103,8 +103,6 @@ const getPopularItems = async (w_id, d_id, l) => {
 
   nameAndQuantity.forEach(n => console.log(n))
   nameAndPercentage.forEach(n => console.log(n))
-
-  process.exit(0);
 };
 
-module.exports = { getPopularItems };
+module.exports = { popularItemTransaction };
