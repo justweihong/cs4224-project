@@ -7,7 +7,7 @@ async function orderStatusTransaction(client, C_W_ID, C_D_ID, C_ID) {
 
     const orderQuery = 'SELECT O_ID, O_ENTRY_D, O_CARRIER_ID FROM orders' + 
         ' WHERE O_W_ID = ' + C_W_ID + ' AND O_D_ID = ' + C_D_ID + ' AND O_C_ID = ' + C_ID + 
-        ' ORDER BY O_ENTRY_D DESC LIMIT 1';
+        ' ORDER BY O_ID DESC LIMIT 1';
     const lastOrder = (await client.execute(orderQuery)).rows[0];
     console.log('Customer\'s last order number: %d, entry date and time: %o, carrier identifier: %d',
         lastOrder.o_id, lastOrder.o_entry_d, lastOrder.o_carrier_id)

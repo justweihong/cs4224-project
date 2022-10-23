@@ -1,4 +1,4 @@
-async function getPopularItems(client, w_id, d_id, l) {
+async function popularItemTransaction(client, w_id, d_id, l) {
     console.log('District Identifier (' + w_id + ', ' + d_id + ')');
     console.log('Last Order to be examined : ' + l);
 
@@ -67,6 +67,7 @@ async function getPopularItems(client, w_id, d_id, l) {
                         if (popularItemsList.includes(nextOrderItem.ol_i_id)) {
 
                         } else {
+                            console.log('push');
                             popularItemsList.push(nextOrderItem.ol_i_id);
                             popularItemsNames.push(itemName);
                         }
@@ -88,6 +89,7 @@ async function getPopularItems(client, w_id, d_id, l) {
                         if (popularItemsList.includes(orderItem.ol_i_id)) {
 
                         } else {
+                            console.log('push');
                             popularItemsList.push(orderItem.ol_i_id);
                             popularItemsNames.push(itemName);
                         }
@@ -115,4 +117,4 @@ async function getPopularItems(client, w_id, d_id, l) {
     }
 }
 
-module.exports = { getPopularItems };
+module.exports = { popularItemTransaction };

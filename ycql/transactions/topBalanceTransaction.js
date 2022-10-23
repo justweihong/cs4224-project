@@ -1,4 +1,4 @@
-async function getTopBalance(client) {
+async function topBalanceTransaction(client) {
     var getTopBalanceStatement = 'SELECT * FROM Customers ORDER BY C_BALANCE DESC LIMIT 10';
     var customerList = []
     await client.execute(getTopBalanceStatement).then(res => {
@@ -32,4 +32,4 @@ async function getTopBalance(client) {
     }
 }
 
-module.exports = { getTopBalance };
+module.exports = { topBalanceTransaction };

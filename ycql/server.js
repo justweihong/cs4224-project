@@ -6,8 +6,8 @@ const { paymentTransaction } = require('./transactions/PaymentTransaction');
 const { deliveryTransaction } = require('./transactions/DeliveryTransaction');
 const { orderStatusTransaction } = require('./transactions/OrderStatusTransaction');
 const { stockLevelTransaction } = require('./transactions/StockLevelTransaction');
-const { topBalanceTransacation } = require('./transactions/popularItemTransaction');
-const { popularItemTransaction } = require('./transactions/topBalanceTransaction');
+const { popularItemTransaction } = require('./transactions/popularItemTransaction');
+const { topBalanceTransaction } = require('./transactions/topBalanceTransaction');
 
 // Config
 const config = {
@@ -119,11 +119,11 @@ async function parser(callbackHandler, filePath) {
                 break;
             case TransactionTypes.POPULAR_ITEM:
                 console.log(`Running Popular Item Transaction Statement, Arguments: W_ID: ${args[1]} D_ID: ${args[2]} L: ${args[3]}`);
-                await getPopularItems(...args.slice(1));
+                await popularItemTransaction(client, ...args.slice(1));
                 break;
             case TransactionTypes.TOP_BALANCE:
                 console.log(`Running Top Balance Transaction Statement`);
-                await getTopBalance();
+                await topBalanceTransaction(client);
                 break;
             // case TransactionTypes.RELATED_CUSTOMER:
         }
