@@ -73,7 +73,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
     await client
         .query('COMMIT')
-        .then(() => { console.log('>>>> DELIVERY TRANSACTION SUCCESS'); })
+        //.then(() => { console.log('>>>> DELIVERY TRANSACTION SUCCESS'); })
         .catch(err => {
             console.error(err.stack);
         })

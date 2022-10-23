@@ -3,7 +3,7 @@ async function orderStatusTransaction(client, C_W_ID, C_D_ID, C_ID) {
     const customerQuery = 'SELECT C_FIRST, C_MIDDLE, C_LAST, C_BALANCE FROM customers' + 
         ' WHERE C_W_ID = ' + C_W_ID + ' AND C_D_ID = ' + C_D_ID + ' AND C_ID = ' + C_ID;
     const customer =(await client.query(customerQuery)).rows[0];
-    console.log("Customer's Namme (%s, %s, %s), balance %d",
+    console.log("Customer's Name (%s, %s, %s), balance %d",
         customer.c_first, customer.c_middle, customer.c_last, customer.c_balance) 
 
     // Get Customer Last Order

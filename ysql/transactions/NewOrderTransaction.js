@@ -156,7 +156,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
 
     await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
-    console.log('>>>> NEW ORDER TRANSACTION');
+    //console.log('>>>> NEW ORDER TRANSACTION');
 
     //OUTPUT STEP 1
     var C_LAST = 0;

@@ -31,7 +31,7 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
       ON (order_lines.ol_w_id = otherCustomerOrders.o_w_id AND order_lines.ol_d_id = otherCustomerOrders.o_d_id AND order_lines.ol_o_id = otherCustomerOrders.o_id))`;
 
       const otherCustomerOrderLines = await client.query(stmt);
-      console.log('>>>> Order lines for customers with foreign warehouses procured.')
+      //console.log('>>>> Order lines for customers with foreign warehouses procured.')
 
       var commonItemOrders = new Map();
       var relatedCustomers = new Set();
