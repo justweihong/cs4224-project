@@ -179,7 +179,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
     //OUTPUT STEP 3
     var O_ENTRY_D;
     var getO_Entry_DQuery = 'SELECT o_entry_d FROM Orders WHERE O_W_ID = ' + W_ID + ' AND O_D_ID = ' + D_ID + ' AND O_ID = ' + N;
-    console.log(getO_Entry_DQuery);
+    //console.log(getO_Entry_DQuery);
     await client.query(getO_Entry_DQuery).then(res => {
         O_ENTRY_D = res.rows[0].o_entry_d;
     }).catch(err => {
