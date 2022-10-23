@@ -1,20 +1,35 @@
-const { customers, warehouses, districts } = require("../sequelize");
+async function topBalanceTransaction(client) {
+    var getTopBalanceStatement = 'SELECT * FROM Customers ORDER BY C_BALANCE DESC LIMIT 10';
+    var customerList = []
+    await client.query(getTopBalanceStatement).then(res => {
+        customerList = res.rows;
+    }).catch(err => {
+        console.error(err.stack);
+    });
+    
+    for (var i = 0; i < customerList.length; i++) {
+        var currentCustomer = customerList[i];
+        console.log('Customer Name : (' + currentCustomer.c_first + ', ' + currentCustomer.c_middle + ', ' + currentCustomer.c_last + ')');
+        console.log('Outstanding Balance : ' + currentCustomer.c_balance);
 
-const topBalanceTransaction = async () => {
-  const res = await customers.findAll({
-    limit: 10,
-    order: [["c_balance", "DESC"]],
-    logging: false,
-  });
+        var getWarehouseNameStatement = 'SELECT * FROM Warehouses WHERE W_ID = ' + currentCustomer.c_w_id;
+        var warehouseName;
+        await client.query(getWarehouseNameStatement).then(res => {
+            warehouseName = res.rows[0].w_name;
+        }).catch(err => {
+            console.error(err.stack);
+        });
+        console.log('Warehouse Name : ' + warehouseName);
 
-  for (let { c_first, c_middle, c_last, c_balance, c_w_id, c_d_id } of res) {
-    const { w_name } = await warehouses.findByPk(c_w_id, { logging: false });
-    const { d_name } = await districts.findByPk(c_d_id, { logging: false });
-
-    console.log(`${(c_first, c_middle, c_last)}: ${c_balance}`);
-    console.log(`Warehouse: ${w_name}`);
-    console.log(`District: ${d_name}`);
-  }
-};
+        var getDistrictNameStatement = 'SELECT * FROM Districts WHERE D_ID = ' + currentCustomer.c_d_id + ' AND D_W_ID = ' + currentCustomer.c_w_id;
+        var districtName;
+        await client.query(getDistrictNameStatement).then(res => {
+            districtName = res.rows[0].d_name;
+        }).catch(err => {
+            console.error(err.stack);
+        });
+        console.log('District Name : ' + districtName);
+    }
+}
 
 module.exports = { topBalanceTransaction };

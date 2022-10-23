@@ -1,108 +1,118 @@
-const { Op, fn, col } = require("sequelize-yugabytedb");
-sequelize = require("../sequelize");
-const {
-  districts,
-  orders,
-  order_lines,
-  items,
-  customers,
-} = require("../sequelize");
+async function popularItemTransaction(client, w_id, d_id, l) {
+    console.log('District Identifier (' + w_id + ', ' + d_id + ')');
+    console.log('Last Order to be examined : ' + l);
 
-const popularItemTransaction = async (w_id, d_id, l) => {
-  console.log(`(${w_id}, ${d_id})`);
-
-  const { d_next_o_id: n } = await districts.findOne({
-    where: { d_w_id: w_id, d_id },
-    attributes: ["d_next_o_id"],
-    raw: true,
-    logging: false,
-  });
-
-  console.log(l);
-
-  const orderRes = await orders.findAll({
-    where: {
-      o_d_id: d_id,
-      o_w_id: w_id,
-      o_id: { [Op.gte]: n - l },
-    },
-    raw: true,
-    logging: false,
-  });
-
-  for (const o of orderRes) {
-    const { c_first, c_middle, c_last } = await customers.findOne({
-      attributes: ["c_first", "c_middle", "c_last"],
-      where: { c_id: o.o_c_id },
-      raw: true,
-      logging: false,
+    var N = 0;
+    await client.query('SELECT D_NEXT_O_ID FROM Districts WHERE D_W_ID = ' + w_id + ' AND D_ID = ' + d_id).then(res => {
+        N = res.rows[0].d_next_o_id;
+    }).catch(err => {
+        console.error(err.stack);
     });
 
-    console.log(`O_ID: ${o.o_id}, O_ENTRY_D: ${o.o_entry_d}`);
-    console.log(`CUSTOMER NAME: ${c_first} ${c_middle} ${c_last}`);
-  }
+    var selectLastOrderStatement = 'SELECT * FROM Orders WHERE O_W_ID = ' + w_id + ' AND O_D_ID = ' + d_id + 'ORDER BY O_ID DESC LIMIT ' + l;
+    var S;
 
-  o_ids = orderRes.map(({ o_id }) => o_id);
-
-  const orderLineQuantities = await order_lines.findAll({
-    attributes: ["ol_i_id", [fn("sum", col("ol_quantity")), "quantity"]],
-    where: {
-      ol_o_id: o_ids,
-      ol_d_id: d_id,
-      ol_w_id: w_id,
-    },
-    group: ["ol_i_id"],
-    raw: true,
-    logging: false,
-  });
-
-  const popularItems = orderLineQuantities.reduce(
-    (map, { ol_i_id, quantity }) => {
-      quantity = parseInt(quantity);
-
-      if (quantity === map.quantity) {
-        map.items.push(ol_i_id);
-      } else if (quantity > map.quantity) {
-        map.quantity = quantity;
-        map.items = [ol_i_id];
-      }
-
-      return map;
-    },
-    { quantity: 0, items: [] }
-  );
-
-  const nameAndQuantity = [];
-  const nameAndPercentage = [];
-
-  for (const i_id of popularItems.items) {
-    const res = await order_lines.count({
-      where: {
-        ol_o_id: o_ids,
-        ol_d_id: d_id,
-        ol_w_id: w_id,
-        ol_i_id: i_id,
-      },
-      group: ["ol_o_id"],
-      raw: true,
-      logging: false,
+    await client.query(selectLastOrderStatement).then(res => {
+        S = res.rows;
+    }).catch(err => {
+        console.error(err.stack);
     });
 
-    const { i_name } = await items.findOne({
-      attributes: ["i_name"],
-      where: {
-        i_id: i_id,
-      },
-      raw: true,
-      logging: false,
-    });
+    var popularItemsNames = [];
+    var orderLinesList = [];
+    var popularItemsList = [];
+    for (var i = 0; i < l; i++) {
+        var order = S[i];
+        console.log('Order Number : ' + order.o_id + ' Entry Date and Time : ' + order.o_entry_d);
 
-    nameAndQuantity.push(`${i_name}: ${popularItems.quantity}`)
-    nameAndPercentage.push(`${i_name}: ${(res.pop().count / l * 100).toFixed(2)}%`);
-  }
+        var getCustomerNameStatement = 'SELECT * FROM Customers WHERE C_W_ID = ' + w_id + ' AND C_D_ID = ' + d_id + ' AND C_ID = ' + order.o_c_id;
+        var customer;
+        await client.query(getCustomerNameStatement).then(res => {
+            customer = res.rows[0];
+        }).catch(err => {
+            console.error(err.stack);
+        });
+        console.log('Customer (' + customer.c_first + ', ' + customer.c_middle + ', ' + customer.c_last + ')');
 
-  nameAndQuantity.forEach(n => console.log(n))
-  nameAndPercentage.forEach(n => console.log(n))
-};
+        var getOrderlinesStatement = 'SELECT * FROM Order_Lines WHERE OL_W_ID = ' + w_id + ' AND OL_D_ID = ' + d_id + ' AND OL_O_ID = ' + order.o_id;
+        var orderLines;
+        await client.query(getOrderlinesStatement).then(res => {
+            orderLines = res.rows;
+            orderLinesList.push(orderLines);
+        }).catch(err => {
+            console.error(err.stack);
+        });
+
+        var popularItems = [];
+        for (var y = 0; y < orderLines.length - 1; y++) {
+            var orderItem = orderLines[y];
+
+            for (var x = y + 1; x < orderLines.length; x++) {
+                var nextOrderItem = orderLines[x];
+                if (orderItem.ol_quantity < nextOrderItem.ol_quantity) {
+                    if (popularItems.includes(nextOrderItem.ol_i_id)) {
+
+                    } else {
+                        popularItems.push(nextOrderItem.ol_i_id);
+
+                        var getItemNameStatement = 'SELECT * FROM Items WHERE I_ID = ' + nextOrderItem.ol_i_id;
+                        var itemName;
+                        await client.query(getItemNameStatement).then(res => {
+                            itemName = res.rows[0].i_name;
+                            console.log('Item name : ' + itemName + ' Quantity Ordered : ' + nextOrderItem.ol_quantity);
+                        }).catch(err => {
+                            console.error(err.stack);
+                        });
+
+                        if (popularItemsList.includes(nextOrderItem.ol_i_id)) {
+
+                        } else {
+                            popularItemsList.push(nextOrderItem.ol_i_id);
+                            popularItemsNames.push(itemName);
+                        }
+                    }
+                } else if (orderItem.ol_quantity > nextOrderItem.ol_quantity) {
+                    if (popularItems.includes(orderItem.ol_i_id)) {
+
+                    } else {
+                        popularItems.push(orderItem.ol_i_id);
+                        var getItemNameStatement = 'SELECT * FROM Items WHERE I_ID = ' + orderItem.ol_i_id;
+                        var itemName;
+                        await client.query(getItemNameStatement).then(res => {
+                            itemName = res.rows[0].i_name;
+                            console.log('Item name : ' + itemName + ' Quantity Ordered : ' + nextOrderItem.ol_quantity);
+                        }).catch(err => {
+                            console.error(err.stack);
+                        });
+
+                        if (popularItemsList.includes(orderItem.ol_i_id)) {
+
+                        } else {
+                            popularItemsList.push(orderItem.ol_i_id);
+                            popularItemsNames.push(itemName);
+                        }
+                    }
+                } else {
+
+                }
+            }
+        }
+    }
+
+    for (var i = 0; i < popularItemsList.length; i++) {
+        var countOfOrdersThatContainThisItem = 0;
+        for (var y = 0; y < orderLinesList.length; y++) {
+            var currentOrder = orderLinesList[y];
+            for (var x = 0; x < currentOrder.length; x++) {
+                if (parseInt(currentOrder[x].ol_i_id) == parseInt(popularItemsList[i])) {
+                    countOfOrdersThatContainThisItem++;
+                }
+            }
+        }
+
+        var percent = countOfOrdersThatContainThisItem / l * 100;
+        console.log('Item Name: ' + popularItemsNames[i] + ' Percentage : ' + percent + '%');
+    }
+}
 
 module.exports = { popularItemTransaction };
