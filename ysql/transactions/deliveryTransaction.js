@@ -11,11 +11,11 @@ async function deliveryTransaction(client, w_id, carrier_id) {
         // PROCESS 1a
         var order_no;
         var cust_no;
-
         await client
             .query('SELECT MIN(o_id) FROM orders WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + (i + 1) + ' AND o_carrier_id IS NULL')
             .then(res => {
                 order_no = res.rows[0].min;
+                // console.log(order_no);
             })
             .catch(err => {
                 console.error(err.stack);
@@ -73,7 +73,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
     await client
         .query('COMMIT')
-        .then(() => { console.log('>>>> DELIVERY TRANSACTION SUCCESS'); })
+        //.then(() => { console.log('>>>> DELIVERY TRANSACTION SUCCESS'); })
         .catch(err => {
             console.error(err.stack);
         })
