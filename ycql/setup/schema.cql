@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS customers (
     c_payment_cnt integer,
     c_delivery_cnt integer,
     c_data varchar,
-    PRIMARY KEY ((c_w_id, c_d_id), c_id)
+    PRIMARY KEY ((c_w_id, c_d_id), c_balance, c_id)
 ) WITH transactions = { 'enabled' : true };
 
 CREATE TABLE IF NOT EXISTS orders (

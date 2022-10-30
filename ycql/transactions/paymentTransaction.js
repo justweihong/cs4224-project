@@ -43,12 +43,14 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
         })
 
     // PROCESS 3
+    var OLD_BALANCE;
     var NEW_BALANCE;
     var NEW_C_YTD;
     var NEW_PAYMENT_CNT;
     await client
     .execute('SELECT c_balance, c_ytd_payment, c_payment_cnt FROM customers WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
     .then(res => {
+        OLD_BALANCE = res.rows[0].c_balance;
         NEW_BALANCE = res.rows[0].c_balance.subtract(PAYMENT_DECIMAL);
         NEW_C_YTD = res.rows[0].c_ytd_payment + parseFloat(payment);
         NEW_PAYMENT_CNT = res.rows[0].c_payment_cnt + 1;
@@ -60,7 +62,8 @@ async function paymentTransaction(client, c_w_id, c_d_id, c_id, payment) {
     await client
         .execute('UPDATE customers SET c_balance = ' + NEW_BALANCE 
             + ', c_ytd_payment = ' + NEW_C_YTD
-            + ', c_payment_cnt = ' + NEW_PAYMENT_CNT + ' WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id)
+            + ', c_payment_cnt = ' + NEW_PAYMENT_CNT 
+            + ' WHERE c_w_id = ' + c_w_id + ' AND c_d_id = ' + c_d_id + ' AND c_id = ' + c_id + ' AND c_balance = ' + OLD_BALANCE)
         .catch(err => {
             console.error(err.stack);
         })

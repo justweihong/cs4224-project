@@ -71,6 +71,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
             // PROCESS 1d
             var SUM_DECIMAL;
+            var OLD_C_BALANCE;
             var NEW_C_BALANCE;
             var NEW_C_DELIVERY_CNT;
             await client
@@ -85,6 +86,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
             await client
                 .execute('SELECT c_balance, c_delivery_cnt from customers WHERE c_id = ' + cust_no)
                 .then(res => {
+                    OLD_C_BALANCE = res.rows[0].c_balance;
                     NEW_C_BALANCE = res.rows[0].c_balance.add(SUM_DECIMAL);
                     NEW_C_DELIVERY_CNT = res.rows[0].c_delivery_cnt + 1;
                 })
@@ -94,7 +96,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
             await client
                 .execute('UPDATE customers SET c_balance = ' + NEW_C_BALANCE + ', c_delivery_cnt = ' + NEW_C_DELIVERY_CNT 
-                    + ' WHERE c_w_id = ' + w_id + ' AND c_d_id = ' + (i + 1) + 'AND c_id = ' + cust_no)
+                    + ' WHERE c_w_id = ' + w_id + ' AND c_d_id = ' + (i + 1) + ' AND c_id = ' + cust_no + ' AND c_balance = ' + OLD_C_BALANCE)
                 .catch(err => {
                     console.error(err.stack);
                 })
