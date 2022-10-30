@@ -128,39 +128,45 @@ async function parser(clientNo) {
                 case TransactionTypes.PAYMENT:
                     console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
                     txnLatency = await executeFunction(paymentTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
     
                 case TransactionTypes.DELIVERY:
                     console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
                     txnLatency = await executeFunction(deliveryTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
     
                 case TransactionTypes.ORDER_STATUS:
                     console.log('Running Order Status Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                     txnLatency = await executeFunction(orderStatusTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
     
                 case TransactionTypes.STOCK_LEVEL: 
                     console.log('Running Stock Level Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
                     txnLatency = await executeFunction(stockLevelTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
 				
 				case TransactionTypes.POPULAR_ITEM: 
                     console.log('Running Popular Item Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' no of last orders examined: ' + args[3]);
                     txnLatency = await executeFunction(popularItemTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
 					
 				case TransactionTypes.TOP_BALANCE: 
                     console.log('Running Top Balance Transaction, Arguments: [none]');
                     txnLatency = await executeFunction(topBalanceTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
 				
 				case TransactionTypes.RELATED_CUSTOMER: 
                     console.log('Running Related Customer Transaction, Arguments: Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                     txnLatency = await executeFunction(relatedCustomerTransaction, client, args.slice(1));
+					txnLatencies.push(txnLatency)
                     break;
             }
-            txnLatencies.push(txnLatency)
         }
     
         // Record Benchmarking Metrics
