@@ -139,13 +139,13 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
         console.error(err.stack);
     });
     var D_TAX = 0;
-    await client.query('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID).then(res => {
+    await client.query('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID + ' AND D_W_ID = ' + W_ID).then(res => {
         D_TAX = res.rows[0].d_tax;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_DISCOUNT = 0;
-    await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID + ' AND C_D_ID = ' + D_ID + ' AND C_W_ID = ' + W_ID).then(res => {
         C_DISCOUNT = res.rows[0].c_discount;
     }).catch(err => {
         console.error(err.stack);
@@ -161,13 +161,13 @@ async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM
 
     //OUTPUT STEP 1
     var C_LAST = 0;
-    await client.query('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID + ' AND C_D_ID = ' + D_ID + ' AND C_W_ID = ' + W_ID).then(res => {
         C_LAST = res.rows[0].c_last;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_CREDIT = 0;
-    await client.query('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID + ' AND C_D_ID = ' + D_ID + ' AND C_W_ID = ' + W_ID).then(res => {
         C_CREDIT = res.rows[0].c_credit;
     }).catch(err => {
         console.error(err.stack);
