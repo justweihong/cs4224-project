@@ -21,8 +21,8 @@ const { generateDBState } = require('./util/generateDBState');
 
 // Config
 const config = {
-    host: '127.0.0.1',
-    port: '5433',
+    host: '192.168.48.219',
+    port: '6433',
     database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
