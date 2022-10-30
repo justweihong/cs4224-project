@@ -2,23 +2,23 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
     try { 
 		console.log('Printing related customers:');
 		var relatedCount = 0;
-		var stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM orders 
+		var stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM supplier_db.orders 
 		WHERE 
 		o_w_id = ${given_w_id} AND
 		o_d_id = ${given_d_id} AND
 		o_c_id = ${given_c_id}`;
 		
-		var givenCustomerOrders = (await client.query(stmt)).rows;
+		var givenCustomerOrders = (await client.execute(stmt)).rows;
 		var givenCustomerOrderLines = [];
 		
 		for (order of givenCustomerOrders) {
-			stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM order_lines
+			stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM supplier_db.order_lines
 			WHERE
 			ol_w_id = ${given_w_id} AND
 			ol_d_id = ${given_d_id} AND
 			ol_o_id = ${order.o_id}`;
 		
-			var givenCustomerOrderLinesPartial = (await client.query(stmt)).rows;
+			var givenCustomerOrderLinesPartial = (await client.execute(stmt)).rows;
 			givenCustomerOrderLines.push(...givenCustomerOrderLinesPartial);
 		}
 	    for (p of Array(10).keys()) {
@@ -29,23 +29,23 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
 			
 			for (q of Array(10).keys()) {
 				
-				stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM orders 
+				stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM supplier_db.orders 
 				WHERE 
 				o_w_id = ${p} AND
 				o_d_id = ${q}`;
 				
-				var otherCustomerOrders = (await client.query(stmt)).rows;
+				var otherCustomerOrders = (await client.execute(stmt)).rows;
 				var otherCustomerOrderLines = [];
 				
 				for (order of otherCustomerOrders) {
-					stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM order_lines
+					stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM supplier_db.order_lines
 					WHERE
 					ol_w_id = ${p} AND
 					ol_d_id = ${q} AND
 					ol_o_id = ${order.o_id}`;
 				
 					order['commonItems'] = new Set();
-					var otherCustomerOrderLinesPartial = (await client.query(stmt)).rows;
+					var otherCustomerOrderLinesPartial = (await client.execute(stmt)).rows;
 					otherCustomerOrderLines.push(...otherCustomerOrderLinesPartial);
 				}
 						
