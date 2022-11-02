@@ -11,7 +11,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
 
     //STEP 2
     let nPlusOne = N + 1; 
-    await client.query('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne).catch(err => {
+    await client.query('UPDATE Districts SET D_NEXT_O_ID = ' + nPlusOne + 'WHERE D_W_ID = ' + W_ID + ' AND D_ID = ' + D_ID).catch(err => {
         console.error(err.stack);
     });
 
@@ -87,7 +87,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
             DISTRICT = '0' + D_ID;
         }
 
-        await client.query('SELECT S_DIST_'+ DISTRICT + ' FROM Stocks').then(res => {
+        await client.query('SELECT S_DIST_'+ DISTRICT + ' FROM Stocks WHERE S_W_ID = ' + WAREHOUSE + ' AND S_I_ID = ' + ITEM_NO).then(res => {
             switch(D_ID) {
                 case '1':
                     OL_DIST_INFO = res.rows[0].s_dist_01;
@@ -144,7 +144,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
         console.error(err.stack);
     });
     var C_DISCOUNT = 0;
-    await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_W_ID = ' + W_ID + ' AND C_D_ID = ' + D_ID + ' AND C_ID = ' + C_ID).then(res => {
         C_DISCOUNT = res.rows[0].c_discount;
     }).catch(err => {
         console.error(err.stack);
@@ -154,19 +154,18 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
     TOTAL_AMOUNT = TOTAL_AMOUNT * (1 + D_TAX + W_TAX) * (1 - C_DISCOUNT);
     TOTAL_AMOUNT = TOTAL_AMOUNT.toFixed(2);
 
-    await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
-    //console.log('>>>> NEW ORDER TRANSACTION');
+    
 
     //OUTPUT STEP 1
     var C_LAST = 0;
-    await client.query('SELECT C_LAST FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_LAST FROM Customers WHERE C_W_ID = ' + W_ID + ' AND C_D_ID = ' + D_ID + ' AND C_ID = ' + C_ID).then(res => {
         C_LAST = res.rows[0].c_last;
     }).catch(err => {
         console.error(err.stack);
     });
     var C_CREDIT = 0;
-    await client.query('SELECT C_CREDIT FROM Customers WHERE C_ID = ' + C_ID).then(res => {
+    await client.query('SELECT C_CREDIT FROM Customers WHERE C_W_ID = ' + W_ID + ' AND C_D_ID = ' + D_ID + ' AND C_ID = ' + C_ID).then(res => {
         C_CREDIT = res.rows[0].c_credit;
     }).catch(err => {
         console.error(err.stack);
@@ -215,6 +214,7 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
 
         console.log(ITEM_NO + ', ' + I_NAME + ', ' + SUPPLIER_WAREHOUSE[i] + ', ' + QUANTITY[i] + ', ' + OL_AMOUNT + ', ' + S_QUANTITY);    
     }
+    await client.query('COMMIT').catch(err => {console.error(err.stack);})
     
 }
 
