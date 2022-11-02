@@ -20,7 +20,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
             .catch(err => {
                 console.error(err.stack);
             })
-
+            
         if (order_no == null) {
             if (i == 9 && !isUpdated) {
                 console.log('There is no yet-to-delivered orders in warehouse ' + w_id + '.');
@@ -29,7 +29,6 @@ async function deliveryTransaction(client, w_id, carrier_id) {
         }
 
         var isUpdated = true;
-
         await client
             .query('SELECT o_c_id FROM orders WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + (i + 1) + ' AND o_id = ' + order_no)
             .then(res => {
@@ -41,12 +40,11 @@ async function deliveryTransaction(client, w_id, carrier_id) {
 
         // PROCESS 1b
         await client
-            .query('UPDATE orders SET o_carrier_id = ' + carrier_id + ' WHERE o_id = ' + order_no)
+            .query('UPDATE orders SET o_carrier_id = ' + carrier_id + ' WHERE o_w_id = ' + w_id + ' AND o_d_id = ' + (i + 1) + ' AND o_id = ' + order_no)
             .catch(err => {
                 console.error(err.stack);
             })
 
-        // PROCESS 1c
         await client
             .query('UPDATE order_lines SET ol_delivery_d = CURRENT_TIMESTAMP WHERE ol_o_id = ' + order_no)
             .catch(err => {
@@ -63,9 +61,9 @@ async function deliveryTransaction(client, w_id, carrier_id) {
             .catch(err => {
                 console.error(err.stack);
             })
-
+        
         await client
-            .query('UPDATE customers SET c_balance = c_balance + ' + balance + ', c_delivery_cnt = c_delivery_cnt + 1 WHERE c_id = ' + cust_no)
+            .query('UPDATE customers SET c_balance = c_balance + ' + balance + ', c_delivery_cnt = c_delivery_cnt + 1 WHERE c_w_id = ' + w_id + ' AND c_d_id = ' + (i + 1) + 'AND c_id = ' + cust_no)
             .catch(err => {
                 console.error(err.stack);
             })

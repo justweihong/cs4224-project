@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS order_lines (
     CONSTRAINT fk_order_line_item FOREIGN KEY (ol_i_id)
     REFERENCES items(i_id)
 );
+CREATE INDEX ol_o_id_index ON order_lines(ol_o_id ASC);
 CREATE TABLE IF NOT EXISTS stocks (
     s_w_id integer NOT NULL,
     s_i_id integer NOT NULL,

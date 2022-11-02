@@ -19,10 +19,10 @@ const { outputClients } = require('./util/outputClients');
 const { outputThroughput } = require('./util/outputThroughput');
 const { generateDBState } = require('./util/generateDBState');
 
-// Config
+// Confighost: '192.168.48.219',
 const config = {
-    host: '127.0.0.1',
-    port: '5433',
+    host: '127.0.0.1', //! Actual: 192.168.48.219
+    port: '5433', //! Actual: 6433
     database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
@@ -196,7 +196,8 @@ async.series([
 
     // Run client drivers
     function (callbackHandler) {
-        const clientNumbers = [...Array(20).keys()]
+        // const clientNumbers = [...Array(20).keys()]
+        const clientNumbers = [20,21,22,23,24,25,26,27] //! DEBUG
 
         const clientPrograms = clientNumbers.map( clientNo => parser(clientNo));
 
