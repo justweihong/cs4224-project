@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS orders (
     REFERENCES customers(c_w_id, c_d_id, c_id),
     CONSTRAINT carrier_id_check check(o_carrier_id >= 1 and o_carrier_id <= 10)
 );
+CREATE INDEX IF NOT EXISTS o_w_d_and_carrier_index ON orders(o_w_id, o_d_id, o_carrier_id);
 CREATE TABLE IF NOT EXISTS items (
     i_id integer NOT NULL,
     i_name varchar(24),
