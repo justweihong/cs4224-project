@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS customers (
     CONSTRAINT fk_customer_district FOREIGN KEY (c_w_id, c_d_id)
     REFERENCES districts(d_w_id, d_id)
 );
+CREATE INDEX IF NOT EXISTS c_balance_index ON customers(c_balance DESC);
 CREATE TABLE IF NOT EXISTS orders (
     o_w_id integer NOT NULL,
     o_d_id integer NOT NULL,
