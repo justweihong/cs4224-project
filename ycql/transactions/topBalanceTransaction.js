@@ -1,14 +1,66 @@
+const BigDecimal = require('cassandra-driver').types.BigDecimal;
+
+function getTopTenCustomers(array1, array2) {
+    var topTenCustomers = [];
+    var counter, i, j = 0;
+
+    if (typeof array1 == 'undefined' || array1.length == 0) {
+        topTenCustomers = array2;
+    } else if (typeof array2 == 'undefined' || array2.length == 0) {
+        topTenCustomers = array1;
+    } else {
+        while (counter < 10 && i < array1.length && j < array2.length) {
+            if (array2[j].c_balance.compare(array1[i].c_balance == 1)) {
+                topTenCustomers[counter] = array2[j];
+                j++;
+            } else {
+                topTenCustomers[counter] = array1[i];
+                i++;
+            }
+            counter++;
+        }
+    }
+
+    return topTenCustomers;
+}
+
 async function topBalanceTransaction(client) {
-    var getTopBalanceStatement = 'SELECT * FROM Customers ORDER BY C_BALANCE DESC LIMIT 10';
-    var customerList = []
-    await client.execute(getTopBalanceStatement).then(res => {
-        customerList = res.rows;
+    var getCustomers = 'SELECT w_id FROM Warehouses';
+    var warehouseList = []
+    await client.execute(getCustomers).then(res => {
+        warehouseList = res.rows;
     }).catch(err => {
         console.error(err.stack);
     });
+
+    var customerList = [];
+    var currWarehouse;
+
+    for (let i = 0; i < warehouseList.length; i++) {
+        currWarehouse = warehouseList[i].w_id;
+        var getCustomers = 'SELECT C_W_ID, C_D_ID, C_FIRST, C_MIDDLE, C_LAST, C_BALANCE FROM Customers WHERE C_W_ID = ' + currWarehouse + ' LIMIT 10';
+        await client.execute(getCustomers).then(res => {
+            customerList[i] = res.rows;
+        }).catch(err => {
+            console.error(err.stack);
+        });
+    }
+
+    while (customerList.length > 1) {
+        const mergedCustList = [];
+
+        for (let i = 0; i < customerList.length; i += 2) {
+            var arr1 = customerList[i];
+            var arr2 = customerList[i + 1];
+
+            mergedCustList.push(getTopTenCustomers(arr1, arr2));
+        }
+
+        customerList = mergedCustList;
+    }
     
-    for (var i = 0; i < customerList.length; i++) {
-        var currentCustomer = customerList[i];
+    for (let i = 0; i < 10; i++) {
+        var currentCustomer = customerList[0][i];
         console.log('Customer Name : (' + currentCustomer.c_first + ', ' + currentCustomer.c_middle + ', ' + currentCustomer.c_last + ')');
         console.log('Outstanding Balance : ' + currentCustomer.c_balance);
 

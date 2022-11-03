@@ -7,7 +7,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
             console.error(err.stack);
         })
 
-    for (i = 0; i < 10; i++) {
+    for (let i = 0; i < 10; i++) {
         // PROCESS 1a
         var order_no;
         var cust_no;

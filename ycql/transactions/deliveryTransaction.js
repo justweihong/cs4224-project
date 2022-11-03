@@ -10,7 +10,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
                 console.error(err.stack);
             })
 
-        for (i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {
             // PROCESS 1a
             var order_no;
             var cust_no;
@@ -60,7 +60,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
                     console.error(err.stack);
                 })
             
-            for (j = 0; j < OL_NOS.length; j++) {
+            for (let j = 0; j < OL_NOS.length; j++) {
                 await client
                 .execute('UPDATE order_lines SET ol_delivery_d = toTimestamp(now()) WHERE ol_w_id = ' + w_id 
                     + ' AND ol_d_id = ' + (i + 1) + ' AND ol_o_id = ' + order_no + 'AND ol_number = ' + OL_NOS[j].ol_number)

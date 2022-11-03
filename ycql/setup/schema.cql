@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS customers (
     PRIMARY KEY ((c_w_id, c_d_id), c_id)
 ) WITH transactions = { 'enabled' : true };
 
+CREATE INDEX cust_by_balance ON customers (c_w_id, c_balance) INCLUDE (c_d_id, c_first, c_middle, c_last) WITH CLUSTERING ORDER BY (c_balance DESC);
+
 CREATE TABLE IF NOT EXISTS orders (
     o_w_id integer,
     o_d_id integer,
