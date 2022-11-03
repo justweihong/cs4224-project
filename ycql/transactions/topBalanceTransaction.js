@@ -2,7 +2,7 @@ const BigDecimal = require('cassandra-driver').types.BigDecimal;
 
 function getTopTenCustomers(array1, array2) {
     var topTenCustomers = [];
-    var counter, i, j = 0;
+    var counter = 0, i = 0, j = 0;
 
     if (typeof array1 == 'undefined' || array1.length == 0) {
         topTenCustomers = array2;
@@ -10,13 +10,25 @@ function getTopTenCustomers(array1, array2) {
         topTenCustomers = array1;
     } else {
         while (counter < 10 && i < array1.length && j < array2.length) {
-            if (array2[j].c_balance.compare(array1[i].c_balance == 1)) {
+            if (array2[j].c_balance.compare(array1[i].c_balance) == 1) {
                 topTenCustomers[counter] = array2[j];
                 j++;
             } else {
                 topTenCustomers[counter] = array1[i];
                 i++;
             }
+            counter++;
+        }
+           
+        while (counter < 10 && i < array1.length) {
+            topTenCustomers[counter] = array1[i];
+            i++;
+            counter++;
+        }
+
+        while (counter < 10 && j < array2.length) {
+            topTenCustomers[counter] = array2[j];
+            j++;
             counter++;
         }
     }
