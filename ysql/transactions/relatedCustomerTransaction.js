@@ -1,4 +1,5 @@
 async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_c_id) {
+    await client.query('BEGIN TRANSACTION')
     try { 
 		console.log('Printing related customers:');
 		var relatedCount = 0;
@@ -88,10 +89,11 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
 		if(relatedCount == 0) {
 			console.log('No related customers found.');
 		}
+        await client.query('COMMIT TRANSACTION')
 		
-    } catch (err) {
-        console.error(err.stack);
-    }
+    } catch(err) {
+        await client.query('ABORT TRANSACTION')
+    } 
 }
 
 module.exports = { relatedCustomerTransaction };
