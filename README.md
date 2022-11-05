@@ -26,4 +26,15 @@ Done in AY22/23 Semester 1
 ```
 ./ysql/setup/init.sh
 ```
+* To populate the YCQL database, while in the cs4224-project directory, download version 0.0.27 of cassandra loader using wget:
+```
+wget https://github.com/brianmhess/cassandra-loader/releases/download/v0.0.27/cassandra-loader
+```
+* Next, run the following commands:
+```
+chmod a+x cassandra-loader
+```
+```
+./ycql/setup/init.sh
+```
 

@@ -124,9 +124,11 @@ async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUM
         await client.query('SELECT D_TAX FROM Districts WHERE D_ID = ' + D_ID).then(res => {
             D_TAX = res.rows[0].d_tax;
         });
+
         var C_DISCOUNT = 0;
         await client.query('SELECT C_DISCOUNT FROM Customers WHERE C_W_ID = ' + W_ID + ' AND C_D_ID = ' + D_ID + ' AND C_ID = ' + C_ID).then(res => {
             C_DISCOUNT = res.rows[0].c_discount;
+
         });
         D_TAX = parseFloat(D_TAX);
         W_TAX = parseFloat(W_TAX);
