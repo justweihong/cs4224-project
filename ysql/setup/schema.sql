@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS customers (
     CONSTRAINT fk_customer_district FOREIGN KEY (c_w_id, c_d_id)
     REFERENCES districts(d_w_id, d_id)
 );
+CREATE INDEX IF NOT EXISTS c_balance_index ON customers(c_balance DESC);
 CREATE TABLE IF NOT EXISTS orders (
     o_w_id integer NOT NULL,
     o_d_id integer NOT NULL,
@@ -66,6 +67,7 @@ CREATE TABLE IF NOT EXISTS orders (
     REFERENCES customers(c_w_id, c_d_id, c_id),
     CONSTRAINT carrier_id_check check(o_carrier_id >= 1 and o_carrier_id <= 10)
 );
+CREATE INDEX IF NOT EXISTS o_w_d_and_carrier_index ON orders(o_w_id, o_d_id, o_carrier_id);
 CREATE TABLE IF NOT EXISTS items (
     i_id integer NOT NULL,
     i_name varchar(24),
@@ -91,6 +93,7 @@ CREATE TABLE IF NOT EXISTS order_lines (
     CONSTRAINT fk_order_line_item FOREIGN KEY (ol_i_id)
     REFERENCES items(i_id)
 );
+CREATE INDEX IF NOT EXISTS ol_o_id_index ON order_lines(ol_o_id ASC);
 CREATE TABLE IF NOT EXISTS stocks (
     s_w_id integer NOT NULL,
     s_i_id integer NOT NULL,
