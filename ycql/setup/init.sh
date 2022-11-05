@@ -1,14 +1,14 @@
 #! /bin/sh
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.warehouses;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.districts;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.customers;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.orders;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.items;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.order_lines;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.stocks;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP KEYSPACE IF EXISTS supplier_db;'
-../yugabyte-2.14.1.0/bin/ycqlsh -e 'CREATE KEYSPACE supplier_db;'
-../yugabyte-2.14.1.0/bin/ycqlsh -k supplier_db -f ./ycql/setup/schema.cql
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.warehouses;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.districts;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.customers;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.orders;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.items;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.order_lines;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.stocks;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP KEYSPACE IF EXISTS supplier_db;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'CREATE KEYSPACE supplier_db;' 192.168.48.219
+../yugabyte-2.14.1.0/bin/ycqlsh -k supplier_db -f ./ycql/setup/schema.cql 192.168.48.219
 ./cassandra-loader -f ./project_files/data_files/warehouse.csv -schema "supplier_db.warehouses(w_id, w_name, w_street_1, w_street_2, w_city, w_state, w_zip, w_tax, w_ytd)" -configFile ./ycql/setup/loaderConfig -nullString "null"
 ./cassandra-loader -f ./project_files/data_files/district.csv -schema "supplier_db.districts(d_w_id, d_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip, d_tax, d_ytd, d_next_o_id)" -configFile ./ycql/setup/loaderConfig -nullString "null"
 ./cassandra-loader -f ./project_files/data_files/customer.csv -schema "supplier_db.customers(c_w_id, c_d_id, c_id, c_first, c_middle, c_last, c_street_1, c_street_2, c_city, c_state, c_zip, c_phone, c_since, c_credit, c_credit_limit, c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, c_data)" -configFile ./ycql/setup/loaderConfig -batchSize 100 -rate 2000 -queryTimeout 10 -dateFormat "yyyy-MM-dd HH:mm:ss.SSS" -nullString "null"
