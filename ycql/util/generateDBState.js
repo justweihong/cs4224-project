@@ -22,7 +22,7 @@ async function generateDBState(client, filePath) {
   var output = "";
 
   for (i = 0; i < stat_queries.length; i++) {
-    var stat = await client.query(stat_queries[i]);
+    var stat = await client.execute(stat_queries[i]);
     if (i == 7) {
       statprintable = stat["rows"][0]["max"];
     } else {
