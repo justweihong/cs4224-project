@@ -1,6 +1,6 @@
 const BigDecimal = require('cassandra-driver').types.BigDecimal;
 
-async function newOrderTransaction(callbackHadler, client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
+async function newOrderTransaction(client, W_ID, D_ID, C_ID, NUM_ITEMS, ITEM_NUMBER, SUPPLIER_WAREHOUSE, QUANTITY) {
     await client
         .execute('START TRANSACTION')
         .catch(err => {

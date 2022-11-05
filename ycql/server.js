@@ -62,7 +62,7 @@ async function connect(callbackHandler) {
 
 async function parser(clientNo) {
     return new Promise((resolve, reject) => {
-        const filePath = `../project_files/xact_files/${clientNo}.txt`;
+        const filePath = `./project_files/xact_files/${clientNo}.txt`;
         fs.readFile(filePath, 'utf8', async function (err,data) {
     
         // Return error for invalid file
