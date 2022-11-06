@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 var pg = require('pg');
 const async = require('async');
 const fs = require('fs');
