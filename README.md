@@ -20,7 +20,6 @@ Done in AY22/23 Semester 1
 │   │   ├── setup
 │   │   └── ..
 │   ├── README.md
-
 ```
 * To configure the nodes, run the following commands in order:
 ```
@@ -34,13 +33,11 @@ Done in AY22/23 Semester 1
 (while logged into xcnd2) startTablet2
 (while logged into xcnd3) startTablet3
 (while logged into xcnd4) startTablet4
-
 ```
 Verify that all master and tablet nodes are operational using the commands:
 ```
 yugaMasters
 yugaTablets
-
 ```
 * To populate the YSQL database, run the following command while in the cs4224-project directory:
 ```
