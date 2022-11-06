@@ -27,48 +27,52 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
 				continue;
 			}
 			
-			stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM supplier_db.orders 
+			for (q of Array(10).keys()) {
+				
+				stmt = `SELECT o_w_id, o_d_id, o_id, o_c_id FROM supplier_db.orders 
 				WHERE 
-				o_w_id = ${p}`;
+				o_w_id = ${p} AND
+				o_d_id = ${q}`;
 				
-			var otherCustomerOrders = (await client.execute(stmt)).rows;
-			var otherCustomerOrderLines = [];
+				var otherCustomerOrders = (await client.execute(stmt)).rows;
+				var otherCustomerOrderLines = [];
 				
-			for (order of otherCustomerOrders) {
-				stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM supplier_db.order_lines
-				WHERE
-				ol_w_id = ${p} AND
-				ol_o_id = ${order.o_id}`;
+				for (order of otherCustomerOrders) {
+					stmt = `SELECT ol_w_id, ol_d_id, ol_o_id, ol_i_id FROM supplier_db.order_lines
+					WHERE
+					ol_w_id = ${p} AND
+					ol_d_id = ${q} AND
+					ol_o_id = ${order.o_id}`;
 				
-				order['commonItems'] = new Set();
-				var otherCustomerOrderLinesPartial = (await client.execute(stmt)).rows;
-				otherCustomerOrderLines.push(...otherCustomerOrderLinesPartial);
-			}
+					order['commonItems'] = new Set();
+					var otherCustomerOrderLinesPartial = (await client.execute(stmt)).rows;
+					otherCustomerOrderLines.push(...otherCustomerOrderLinesPartial);
+				}
 						
-			for (k = 0; k < otherCustomerOrderLines.length; k++) {
-				var current = otherCustomerOrderLines[k];
-				ol_c_id = otherCustomerOrders.find(el => (el.o_id == current.ol_o_id) && 
-				(el.o_w_id == current.ol_w_id) && (el.o_d_id == current.ol_d_id)).o_c_id;
-				current['ol_c_id'] = ol_c_id;
-			}
+				for (k = 0; k < otherCustomerOrderLines.length; k++) {
+					var current = otherCustomerOrderLines[k];
+					ol_c_id = otherCustomerOrders.find(el => (el.o_id == current.ol_o_id) && 
+					(el.o_w_id == current.ol_w_id) && (el.o_d_id == current.ol_d_id)).o_c_id;
+					current['ol_c_id'] = ol_c_id;
+				}
 				
-			for (k = 0; k < otherCustomerOrders.length; k++) {
-				var current = otherCustomerOrders[k];
-				current['commonItemCount'] = 0;
-			}
+				for (k = 0; k < otherCustomerOrders.length; k++) {
+					var current = otherCustomerOrders[k];
+					current['commonItemCount'] = 0;
+				}
 				
-			for (i = 0; i < givenCustomerOrderLines.length; i++) {
-				givenLine = givenCustomerOrderLines[i];
-				for(j = 0; j < otherCustomerOrderLines.length; j++) {
-					otherLine = otherCustomerOrderLines[j];
+				for (i = 0; i < givenCustomerOrderLines.length; i++) {
+					givenLine = givenCustomerOrderLines[i];
+					for(j = 0; j < otherCustomerOrderLines.length; j++) {
+						otherLine = otherCustomerOrderLines[j];
 						
-					if (givenLine.ol_i_id == otherLine.ol_i_id) {
-						var otherOrder = otherCustomerOrders.find(el => (el.o_id == otherLine.ol_o_id) &&
-						(el.o_w_id == otherLine.ol_w_id) && (el.o_d_id == otherLine.ol_d_id));
-						otherOrder['commonItems'].add(otherLine.ol_i_id);
+						if (givenLine.ol_i_id == otherLine.ol_i_id) {
+							var otherOrder = otherCustomerOrders.find(el => (el.o_id == otherLine.ol_o_id) &&
+							(el.o_w_id == otherLine.ol_w_id) && (el.o_d_id == otherLine.ol_d_id));
+							otherOrder['commonItems'].add(otherLine.ol_i_id);
+						}
 					}
 				}
-			}
 			
 				
 				for (k = 0; k < otherCustomerOrders.length; k++) {
@@ -78,6 +82,7 @@ async function relatedCustomerTransaction(client, given_w_id, given_d_id, given_
 						relatedCount = relatedCount + 1;
 					}
 				}
+			}
 		}
 		
 		if(relatedCount == 0) {
