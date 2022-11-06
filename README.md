@@ -14,7 +14,7 @@ Done in AY22/23 Semester 1
 │   │   ├── data_files
 │   │   └── xact_files
 │   ├── ycql
-│   │   ├── ..
+│   │   ├── setup
 │   │   └── 
 │   ├── ysql
 │   │   ├── setup
@@ -24,17 +24,24 @@ Done in AY22/23 Semester 1
 ```
 * To populate the YSQL database, run the following command while in the cs4224-project directory:
 ```
+chmod 777 ./ysql/setup/init.sh
 ./ysql/setup/init.sh
+
 ```
 * To populate the YCQL database, while in the cs4224-project directory, download version 0.0.27 of cassandra loader using wget:
 ```
 wget https://github.com/brianmhess/cassandra-loader/releases/download/v0.0.27/cassandra-loader
+
 ```
 * Next, run the following commands:
 ```
-chmod a+x cassandra-loader
-```
-```
+chmod 777 cassandra-loader
+chmod 777 ./ycql/setup/init.sh
 ./ycql/setup/init.sh
+
 ```
+* Finally, to execute transactions in YSQL or YCQL, enter the relevant folder (/ysql or /ycql) and run the command:
+```
+node server
+
 

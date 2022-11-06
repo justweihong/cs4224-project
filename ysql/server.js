@@ -22,8 +22,8 @@ const { generateDBState } = require('./util/generateDBState');
 
 // Confighost: '192.168.48.219',
 const config = {
-    host: '192.168.48.219', //! Actual: 192.168.48.219
-    port: '6433', //! Actual: 6433
+    host: '192.168.48.219',
+    port: '6433',
     database: 'supplier_db',
     user: 'yugabyte',
     password: 'yugabyte',
@@ -115,7 +115,6 @@ async function parser(clientNo) {
                 console.log('Running New Order Transaction, Arguments:' + ' W_ID: ' + orderDetails[1] 
                     + ' D_ID: ' + orderDetails[2] + ' C_ID: ' + orderDetails[0] + ' Number of Items: ' + orderDetails[3]);
                 const txnLatency = await executeFunction(newOrderTransaction, clients[clientNo], [orderDetails[1], orderDetails[2], orderDetails[0], orderDetails[3], itemNumberList, supplierWarehouseList, quantityList])
-                console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                 txnLatencies.push(txnLatency)
     
                 itemNumberList = [];
@@ -136,49 +135,42 @@ async function parser(clientNo) {
                     console.log('Running Payment Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3] + ' Payment Amount: ' + args[4]);
                     txnLatency = await executeFunction(paymentTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
     
                 case TransactionTypes.DELIVERY:
                     console.log('Running Delivery Transaction, Arguments: W_ID: ' + args[1] + ' Carrier_ID: ' + args[2]);
                     txnLatency = await executeFunction(deliveryTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
     
                 case TransactionTypes.ORDER_STATUS:
                     console.log('Running Order Status Transaction, Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                     txnLatency = await executeFunction(orderStatusTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
     
                 case TransactionTypes.STOCK_LEVEL: 
                     console.log('Running Stock Level Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' Threshold: ' + args[3] + ' no of last orders examined: ' + args[4]);
                     txnLatency = await executeFunction(stockLevelTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
 				
 				case TransactionTypes.POPULAR_ITEM: 
                     console.log('Running Popular Item Transaction, Arguments: W_ID: ' + args[1] + ' D_ID: ' + args[2] + ' no of last orders examined: ' + args[3]);
                     txnLatency = await executeFunction(popularItemTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
 					
 				case TransactionTypes.TOP_BALANCE: 
                     console.log('Running Top Balance Transaction, Arguments: [none]');
                     txnLatency = await executeFunction(topBalanceTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
 				
 				case TransactionTypes.RELATED_CUSTOMER: 
                     console.log('Running Related Customer Transaction, Arguments: Arguments: C_W_ID: ' + args[1] + ' C_D_ID: ' + args[2] + ' C_ID: ' + args[3]);
                     txnLatency = await executeFunction(relatedCustomerTransaction, clients[clientNo], args.slice(1));
 					txnLatencies.push(txnLatency)
-                    console.log('DEBUG: client no: ' + clientNo + ' line number :' + lineCount +  ', time taken - ' + txnLatency.toFixed(2) + 'ms, timestamp: ' + new Date()) //! DEBUG PURPOSES
                     break;
             }
         }
@@ -200,8 +192,6 @@ async.series([
     // Run client drivers
     function (callbackHandler) {
         const clientNumbers = [...Array(20).keys()]
-        // const clientNumbers = [20,21,22,23,24,25,26,27] //! DEBUG
-        // const clientNumbers = [20, 20, 20, 20]
 
         const clientPrograms = clientNumbers.map( clientNo => parser(clientNo));
 
