@@ -1,4 +1,7 @@
 #! /bin/sh
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP INDEX IF EXISTS supplier_db.cust_by_balance;'
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP INDEX IF EXISTS supplier_db.orders_by_null_carrier;'
+../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP INDEX IF EXISTS supplier_db.order_lines_by_oid;'
 ../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.warehouses;'
 ../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.districts;'
 ../yugabyte-2.14.1.0/bin/ycqlsh -e 'DROP TABLE IF EXISTS supplier_db.customers;'
