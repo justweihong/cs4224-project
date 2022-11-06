@@ -63,7 +63,9 @@ CREATE TABLE IF NOT EXISTS orders (
     o_all_local decimal,
     o_entry_d timestamp,
     PRIMARY KEY ((o_w_id, o_d_id), o_id)
-);
+) WITH transactions = { 'enabled' : true };
+
+CREATE INDEX orders_by_null_carrier ON orders ((o_w_id, o_d_id), o_carrier_id) INCLUDE (o_id) WHERE o_carrier_id = NULL;
 
 CREATE TABLE IF NOT EXISTS items (
     i_id integer,
@@ -87,6 +89,8 @@ CREATE TABLE IF NOT EXISTS order_lines (
     ol_dist_info varchar,
     PRIMARY KEY ((ol_w_id, ol_d_id), ol_o_id, ol_number)
 ) WITH transactions = { 'enabled' : true };
+
+CREATE INDEX order_lines_by_oid ON order_lines (ol_o_id) INCLUDE (ol_amount);
 
 CREATE TABLE IF NOT EXISTS stocks (
     s_w_id integer,

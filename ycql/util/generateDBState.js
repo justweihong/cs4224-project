@@ -22,19 +22,18 @@ async function generateDBState(client, filePath) {
   var output = "";
 
   for (i = 0; i < stat_queries.length; i++) {
-    var stat = await client.execute(stat_queries[i]);
-    if (i == 7) {
-      statprintable = stat["rows"][0]["max"];
-    } else {
-      statprintable = stat["rows"][0]["sum"];
-    }
-
-    output += statprintable;
-
-    if (i < stat_queries.length - 1) {
-      output += "\r\n";
-    }
+	  try{
+		 var stat = await client.execute(stat_queries[i]);
+		 stat_clean = String(Object.values(stat.rows[0])[0]).replace('BigDecimal: ','');
+		 output += stat_clean;
+		 if(i < stat_queries.length - 1) { output += "\r\n";}
+	  }
+	  catch(err) {
+		output += 'ERROR\r\n'
+		continue;
+	  }
   }
+	 
   fs.writeFileSync(filePath, output);
   console.log("4.3 REPORT DB STATE COMPLETED");
 }
