@@ -17,7 +17,7 @@ const { generateDBState } = require('./util/generateDBState');
 
 // Config
 const config = {
-    contactPoints: ['192.168.48.219'],
+	contactPoints: ['192.168.48.219:10042'],
     localDataCenter: 'datacenter1',
     keyspace: 'supplier_db',
     credentials: { username: 'cassandra', password: 'cassandra' }
