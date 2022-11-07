@@ -58,7 +58,7 @@ chmod 777 cassandra-loader
 chmod 777 ./ycql/setup/init.sh
 ./ycql/setup/init.sh
 ```
-* Finally, to execute transactions in YSQL or YCQL, enter the relevant folder run the command:
+* Finally, to execute transactions in YSQL or YCQL, run the command:
 ```
 node ./ysql/server.js 
 OR
