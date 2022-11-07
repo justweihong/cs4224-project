@@ -1,7 +1,6 @@
 async function deliveryTransaction(client, w_id, carrier_id) {
     var isUpdated = false;
-
-    await client.query('BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE')
+	await client.query('BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE')
     try {
         for (let i = 0; i < 10; i++) {
             // PROCESS 1a
@@ -18,6 +17,7 @@ async function deliveryTransaction(client, w_id, carrier_id) {
                     console.log('There is no yet-to-delivered orders in warehouse ' + w_id + '.');
                 }
                 continue;
+
             }
 
             var isUpdated = true;
