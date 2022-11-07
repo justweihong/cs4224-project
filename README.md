@@ -26,6 +26,8 @@ Done in AY22/23 Semester 1
 mv ysql/.bash_profile .. (OR mv ycql/.bash_profile ..)
 mv ysql/yugaConfig .. (OR mv ycql/yugaConfig ..)
 
+source ../.bash_profile
+
 (while logged into xcnd0) startMaster0
 (while logged into xcnd1) startMaster1
 (while logged into xcnd2) startMaster2
